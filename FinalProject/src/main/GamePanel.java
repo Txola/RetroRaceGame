@@ -15,13 +15,13 @@ import javax.swing.JPanel;
  * @author txola
  */
 public class GamePanel extends JPanel implements Runnable{
-    final int framesPerSecond = 30;
+    final int framesPerSecond = 120;
     private Thread gameThread;
     private KeyInputHandler keyInput;
     
-    int x = 100;
-    int y = 100;
-    int speed = 2;
+    float x = 100;
+    float y = 100;
+    float speed = 200;
     
     public GamePanel() {
         setBackground(Color.WHITE);
@@ -35,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable{
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.BLACK);
-        g2.fillRect(x, y, 50, 50);
+        g2.fillRect((int) x, (int) y, 50, 50);
         g2.dispose();
     }
 
@@ -48,48 +48,45 @@ public class GamePanel extends JPanel implements Runnable{
     
     @Override
     public void run() {
-        final double delay = 1000 / framesPerSecond;
-        long beforeTime = System.currentTimeMillis();
+        final int timeUnitsPerSecond = 1000000000;
+        final double targetFrameTime = timeUnitsPerSecond / framesPerSecond;
+        final double deltaT = targetFrameTime / timeUnitsPerSecond;
+        double deltaTime = 0;
+        double lastUpdateTime = System.nanoTime();
+                
         long frameCounter = 0;
-        long countStartTime = System.currentTimeMillis();
+        long countStartTime = System.nanoTime();
 
-        while (true) {            
-            //LOGIC HERE-------
-            if (keyInput.up) {
-                y -= speed;
-            }
-            if (keyInput.down) {
-                y += speed;
-            }
-            if (keyInput.left) {
-                x -= speed;
-            }
-            if (keyInput.right) {
-                x += speed;
-            }
+        while (true) {    
+            long currentTime = System.nanoTime();
+            deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
             
-            repaint();
-            //---------------
+            lastUpdateTime = currentTime;
             
-            long remainingTime = (long) (delay - 
-                    (System.currentTimeMillis()- beforeTime));
-            if (remainingTime < 0) {
-                remainingTime = 0;
+            if (deltaTime >= 1) {
+                frameCounter++;
+                //LOGIC HERE-------
+                if (keyInput.up) {
+                    y -= speed * deltaT;
+                }
+                if (keyInput.down) {
+                    y += speed * deltaT;
+                }
+                if (keyInput.left) {
+                    x -= speed * deltaT;
+                }
+                if (keyInput.right) {
+                    x += speed * deltaT;
+                }
+                repaint();
+                //--------------
+                deltaTime--;
             }
-            try {
-                Thread.sleep(remainingTime);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            beforeTime = System.currentTimeMillis();
-            frameCounter++;
-            if (frameCounter > 200) {
-                float fps = frameCounter /
-                        ((System.currentTimeMillis() - countStartTime) / 1000);
-                System.out.println("FPS: " + fps);
+            if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
+                System.out.println("FPS: " + frameCounter);
+                countStartTime = System.nanoTime();
                 frameCounter = 0;
-                countStartTime = System.currentTimeMillis();
+                        
             }
         }
     }
