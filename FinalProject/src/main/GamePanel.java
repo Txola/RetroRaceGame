@@ -15,16 +15,25 @@ import javax.swing.JPanel;
  * @author txola
  */
 public class GamePanel extends JPanel implements Runnable{
-    final int framesPerSecond = 120;
+    final int FRAMES_PER_SECOND = 60;
+    final int ROAD_WIDTH = 2000;
+    final int NUMBER_OF_SEGMENTS = 1000;
+    final int SEGMENT_LENGTH = 200;
+    
+    
     private Thread gameThread;
     private KeyInputHandler keyInput;
+    private Circuit circuit;
+    private Camera camera;
     
     float x = 100;
     float y = 100;
-    float speed = 200;
+    float speed = 100;
     
     public GamePanel() {
-        setBackground(Color.WHITE);
+        setBackground(Color.WHITE); //QUITAR LUEGO
+        circuit = new Circuit(ROAD_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS);
+        camera = new Camera();
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
@@ -34,6 +43,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
+        circuit.renderCircuit(g2, camera, getWidth() / 2, getHeight() / 2);
         g2.setColor(Color.BLACK);
         g2.fillRect((int) x, (int) y, 50, 50);
         g2.dispose();
@@ -49,8 +59,8 @@ public class GamePanel extends JPanel implements Runnable{
     @Override
     public void run() {
         final int timeUnitsPerSecond = 1000000000;
-        final double targetFrameTime = timeUnitsPerSecond / framesPerSecond;
-        final double deltaT = targetFrameTime / timeUnitsPerSecond;
+        final double targetFrameTime = timeUnitsPerSecond / FRAMES_PER_SECOND;
+        final double deltaT = 1.0 / FRAMES_PER_SECOND;
         double deltaTime = 0;
         double lastUpdateTime = System.nanoTime();
                 
