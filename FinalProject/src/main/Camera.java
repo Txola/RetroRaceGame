@@ -10,21 +10,26 @@ package main;
  * @author txola
  */
 public class Camera {
-    Coordinate3D coordinate3D;
+    private Coordinate3D position;
     private float distanceToPlane;
+    private int distanceToPlayer;
 
     public Camera() {
-        coordinate3D = new Coordinate3D(0, 1000, -100);
-        distanceToPlane = -coordinate3D.z / (float) coordinate3D.y;
+        position = new Coordinate3D(0, 1000, -300);
+        distanceToPlane = -position.z / (float) position.y;
+        distanceToPlayer = -position.z;
+    }
+    public void increase(int dz) {
+        position.z += dz;
     }
 
     //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
-    public Coordinate3D getCoordinate3D() {
-        return coordinate3D;
+    public Coordinate3D getPosition() {
+        return position;
     }
 
-    public void setCoordinate3D(Coordinate3D coordinate3D) {
-        this.coordinate3D = coordinate3D;
+    public void setPosition(Coordinate3D coordinate3D) {
+        this.position = coordinate3D;
     }
 
     public float getDistanceToPlane() {
@@ -34,6 +39,13 @@ public class Camera {
     public void setDistanceToPlane(float distanceToPlane) {
         this.distanceToPlane = distanceToPlane;
     }
-//</editor-fold>
+    
+     public int getDistanceToPlayer() {
+        return distanceToPlayer;
+    }
 
+    public void setDistanceToPlayer(int distanceToPlayer) {
+        this.distanceToPlayer = distanceToPlayer;
+    }
+//</editor-fold>
 }

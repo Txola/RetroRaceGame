@@ -76,6 +76,7 @@ public class GamePanel extends JPanel implements Runnable{
             if (deltaTime >= 1) {
                 frameCounter++;
                 //LOGIC HERE-------
+                camera.increase(10);
                 if (keyInput.up) {
                     y -= speed * deltaT;
                 }
