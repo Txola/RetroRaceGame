@@ -22,6 +22,9 @@ public class Camera {
     public void increase(int dz) {
         position.z += dz;
     }
+    public void increasX(int dx) {
+        position.x += dx;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
     public Coordinate3D getPosition() {

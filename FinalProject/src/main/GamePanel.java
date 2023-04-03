@@ -27,9 +27,9 @@ public class GamePanel extends JPanel implements Runnable{
     private Circuit circuit;
     private Camera camera;
     
-    float x = 100;
-    float y = 100;
-    float speed = 100;
+    float x = 350;
+    float y = 600;
+    float speed = 160;
     
     public GamePanel() {
         setBackground(Color.WHITE); //QUITAR LUEGO
@@ -46,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
         Graphics2D g2 = (Graphics2D) g;
         circuit.renderCircuit(g2, camera, getWidth() / 2, getHeight() / 2);
         g2.setColor(Color.BLACK);
-        g2.fillRect((int) x, (int) y, 50, 50);
+        g2.fillRect((int) x, (int) y, 300, 150);
         g2.dispose();
     }
 
@@ -77,18 +77,19 @@ public class GamePanel extends JPanel implements Runnable{
             if (deltaTime >= 1) {
                 frameCounter++;
                 //LOGIC HERE-------
-                camera.increase(10);
                 if (keyInput.up) {
-                    y -= speed * deltaT;
+                    camera.increase(20);
                 }
                 if (keyInput.down) {
-                    y += speed * deltaT;
+                   camera.increase(-15);
                 }
                 if (keyInput.left) {
                     x -= speed * deltaT;
+                    camera.increasX(-40);
                 }
                 if (keyInput.right) {
                     x += speed * deltaT;
+                    camera.increasX(40);
                 }
                 repaint();
                 //--------------
