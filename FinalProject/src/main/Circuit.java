@@ -14,7 +14,7 @@ import java.awt.Graphics2D;
  */
 public class Circuit {
     private int roadWidth;
-    private int rumbleWidth;
+    private int rumblestripWidth;
     private int segmentLenght;
     private int numberOfSegments;
     private Segment[] roadSegments;
@@ -26,9 +26,9 @@ public class Circuit {
     };
 
 
-    public Circuit(int roadWidth, int rumbleWidth, int segmentLenght, int numberOfSegments) {
+    public Circuit(int roadWidth, int rumblestripWidth, int segmentLenght, int numberOfSegments) {
         this.roadWidth = roadWidth;
-        this.rumbleWidth = rumbleWidth;
+        this.rumblestripWidth = rumblestripWidth;
         this.segmentLenght = segmentLenght;
         this.numberOfSegments = numberOfSegments;
         this.roadSegments = createRoadSegments();
@@ -45,81 +45,51 @@ public class Circuit {
         return segments;
     }
     
-    public void renderCircuit(Graphics2D g2, Camera camera, float cx, float cy) {
+    public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
         g2.setColor(new Color(21,205,212));
-        g2.fillRect(0, 0, (int)cx * 2, (int)cy * 2);
+        g2.fillRect(0, 0, screenWidth, screenHeight);
+
         int base = getCurrentSegmentIndex(camera);
+        Point previousPoint = null;
+        
         for (int i = base; i < base + 200; i++) {
-            Segment s = roadSegments[i];
-            int []screenX = new int[4];
-            int []screenY = new int[4];
-            float scale1 = camera.getDistanceToPlane() / 
-                    (s.getPoint1().z - camera.getPosition().z);
-            float screenW1 = scale1 * this.roadWidth * cx;
-            float scrX = cx * 
-                   (1 + scale1 * (s.getPoint1().x - camera.getPosition().x));
-            screenY[0] = screenY[1] = Math.round(cy * 
-                   (1 - scale1 * (s.getPoint1().y - camera.getPosition().y)));
-            screenX[0] = Math.round(scrX - screenW1);
-            screenX[1] = Math.round(scrX + screenW1);
+            Point currentPoint = new Point(roadSegments[i].getPoint1());
+            
+            currentPoint.projectPoint(camera, screenWidth / 2, screenHeight / 2);
 
+            if (i > base) {
+                float prevWidth = previousPoint.getXScale() * roadWidth;
+                float currWidth = currentPoint.getXScale() * roadWidth;
 
-            s = roadSegments[i + 1];
-            float scale2 = camera.getDistanceToPlane() / 
-                    (s.getPoint1().z - camera.getPosition().z);
-            float screenW2 = scale2 * this.roadWidth * cx;
-            scrX = cx * 
-                       (1 + scale2 * (s.getPoint1().x - camera.getPosition().x));
-            screenY[2] = screenY[3] = Math.round(cy * 
-                   (1 - scale2 * (s.getPoint1().y - camera.getPosition().y)));
-            screenX[2] = Math.round(scrX + screenW2);
-            screenX[3] = Math.round(scrX - screenW2);
-            if (i % 2 == 0) 
-                g2.setColor(colors[0]);
-            else
-                g2.setColor(colors[1]);
-            if (screenX[0] == screenX[1])
-                System.out.println("akdjf");
-            g2.fillPolygon(screenX, screenY, 4);
+                int x1 = Math.round(previousPoint.getXWorld() - prevWidth);
+                int x2 = Math.round(previousPoint.getXWorld() + prevWidth);
+                int x3 = Math.round(currentPoint.getXWorld() + currWidth);
+                int x4 = Math.round(currentPoint.getXWorld() - currWidth);
+                setTextureColor(g2, colors[0], colors[1], i, 1);
+                drawPolygon(g2, x1, x2, x3, x4, previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
+                
+                
+               setTextureColor(g2, colors[2], colors[3], i, 1);
+                drawPolygon(g2, 0, x1, x4, 0, previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
+                drawPolygon(g2, x2, screenWidth, screenWidth, x3,
+                        previousPoint.getYWorld(), currentPoint.getYWorld());
+                
+
+                prevWidth = previousPoint.getXScale() * rumblestripWidth;
+                currWidth = currentPoint.getXScale() * rumblestripWidth;
+                setTextureColor(g2, Color.red, Color.white, i, 2);
+                drawPolygon(g2, Math.round(x1 - prevWidth), x1, x4, 
+                        Math.round(x4 - currWidth), previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
+                drawPolygon(g2, x2, Math.round(x2 + prevWidth),
+                        Math.round(x3 + currWidth), x3,
+                        previousPoint.getYWorld(), currentPoint.getYWorld());
+   
+            }
             
-            int []grass = new int[4];
-            grass[0] = 0;
-            grass[1] = screenX[0];
-            grass[2] = screenX[3];
-            grass[3] = 0;
-            
-            if (i % 2 != 0) 
-                g2.setColor(colors[2]);
-            else
-                g2.setColor(colors[3]);
-            g2.fillPolygon(grass, screenY, 4);
-            
-            
-            g2.fillPolygon(grass, screenY, 4);
-            
-            grass[0] = screenX[1];
-            grass[1] = (int) cx * 2;
-            grass[2] = (int) cx * 2;
-            grass[3] = screenX[2];
-            g2.fillPolygon(grass, screenY, 4);
-            
-            
-            if (i % 2 == 0) 
-                g2.setColor(Color.red);
-            else
-                g2.setColor(Color.white);
-            int []rumble = new int[4];
-            rumble[0] = screenX[0] - Math.round(scale1 * rumbleWidth * cx);
-            rumble[1] = screenX[0];
-            rumble[2] = screenX[3];
-            rumble[3] = screenX[3] - Math.round(scale2 * rumbleWidth * cx);
-            g2.fillPolygon(rumble, screenY, 4);
-            
-            rumble[0] = screenX[1];
-            rumble[1] = screenX[1] + Math.round(scale1 * rumbleWidth * cx);
-            rumble[2] = screenX[2] + Math.round(scale2 * rumbleWidth * cx);
-            rumble[3] = screenX[2];
-            g2.fillPolygon(rumble, screenY, 4);
+            previousPoint = currentPoint;
         }
     }   
     
@@ -128,5 +98,18 @@ public class Circuit {
                 segmentLenght) % numberOfSegments;
         return index;
     }
-
+    
+    private void drawPolygon(Graphics2D g2, int x1, int x2, int x3, int x4, int y1, int y2) {
+        int []x = {x1, x2, x3, x4};
+        int []y = {y1, y1, y2, y2};
+        g2.fillPolygon(x, y, 4);  
+    }
+    
+    private void setTextureColor(Graphics2D g2, Color color1, Color color2, int index, int changeRate) {
+        if (index % (changeRate * 2) >= changeRate) {
+            g2.setColor(color1);
+        }
+        else
+            g2.setColor(color2);
+    }
 }

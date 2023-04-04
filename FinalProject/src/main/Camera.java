@@ -15,7 +15,7 @@ public class Camera {
     private int distanceToPlayer;
 
     public Camera() {
-        position = new Coordinate3D(0, 1000, -300);
+        position = new Coordinate3D(0, 1200, -300);
         distanceToPlane = -position.z / (float) position.y;
         distanceToPlayer = -position.z;
     }

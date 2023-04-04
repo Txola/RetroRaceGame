@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2000;
-    final int RUMBLE_WIDTH = 400;
+    final int RUMBLESTRIP_WIDTH = 400;
     final int NUMBER_OF_SEGMENTS = 1000;
     final int SEGMENT_LENGTH = 200;
     
@@ -33,7 +33,7 @@ public class GamePanel extends JPanel implements Runnable{
     
     public GamePanel() {
         setBackground(Color.WHITE); //QUITAR LUEGO
-        circuit = new Circuit(ROAD_WIDTH, RUMBLE_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS);
+        circuit = new Circuit(ROAD_WIDTH, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS);
         camera = new Camera();
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
-        circuit.renderCircuit(g2, camera, getWidth() / 2, getHeight() / 2);
+        circuit.renderCircuit(g2, camera, getWidth(), getHeight());
         g2.setColor(Color.BLACK);
         g2.fillRect((int) x, (int) y, 300, 150);
         g2.dispose();
