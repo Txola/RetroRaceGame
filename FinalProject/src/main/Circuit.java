@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
  */
 public class Circuit {
     private int roadWidth;
+    private int roadLength;
     private int rumblestripWidth;
     private int segmentLenght;
     private int numberOfSegments;
@@ -32,7 +33,64 @@ public class Circuit {
         this.segmentLenght = segmentLenght;
         this.numberOfSegments = numberOfSegments;
         this.roadSegments = createRoadSegments();
+        this.roadLength = numberOfSegments * segmentLenght;
     }
+
+//<editor-fold defaultstate="collapsed" desc="Getters and Setters">
+    public int getRoadWidth() {
+        return roadWidth;
+    }
+    
+    public void setRoadWidth(int roadWidth) {
+        this.roadWidth = roadWidth;
+    }
+    
+    public int getRoadLength() {
+        return roadLength;
+    }
+    
+    public void setRoadLength(int roadLength) {
+        this.roadLength = roadLength;
+    }
+    
+    public int getRumblestripWidth() {
+        return rumblestripWidth;
+    }
+    
+    public void setRumblestripWidth(int rumblestripWidth) {
+        this.rumblestripWidth = rumblestripWidth;
+    }
+    
+    public int getSegmentLenght() {
+        return segmentLenght;
+    }
+    
+    public void setSegmentLenght(int segmentLenght) {
+        this.segmentLenght = segmentLenght;
+    }
+    
+    public int getNumberOfSegments() {
+        return numberOfSegments;
+    }
+    
+    public void setNumberOfSegments(int numberOfSegments) {
+        this.numberOfSegments = numberOfSegments;
+    }
+    
+    public Segment[] getRoadSegments() {
+        return roadSegments;
+    }
+    
+    public void setRoadSegments(Segment[] roadSegments) {
+        this.roadSegments = roadSegments;
+//</editor-fold>
+    }
+    
+    
+    
+    
+    
+    
     
     private final Segment[] createRoadSegments() {
         Segment []segments = new Segment[numberOfSegments];
@@ -52,10 +110,14 @@ public class Circuit {
         int base = getCurrentSegmentIndex(camera);
         Point previousPoint = null;
         
-        for (int i = base; i < base + 200; i++) {
-            Point currentPoint = new Point(roadSegments[i].getPoint1());
+        for (int i = base; i <= base + 200; i++) {
+            int index = i % numberOfSegments;
+            System.out.println(index);
             
-            currentPoint.projectPoint(camera, screenWidth / 2, screenHeight / 2);
+            Point currentPoint = new Point(roadSegments[index].getPoint1());
+            
+            currentPoint.projectPoint(camera, index < base ? roadLength : 0,
+                    screenWidth / 2, screenHeight / 2);
 
             if (i > base) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
@@ -95,7 +157,7 @@ public class Circuit {
     
     private int getCurrentSegmentIndex(Camera camera) {
         int index = ((camera.getPosition().z + camera.getDistanceToPlayer()) /
-                segmentLenght) % numberOfSegments;
+                segmentLenght);
         return index;
     }
     

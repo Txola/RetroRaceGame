@@ -25,6 +25,10 @@ public class Camera {
     public void increasX(int dx) {
         position.x += dx;
     }
+    
+    public void restart() {
+        position.z = -distanceToPlayer;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
     public Coordinate3D getPosition() {
