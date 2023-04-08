@@ -36,14 +36,14 @@ public class Point {
     }
 
     
-    public void projectPoint(Camera camera, int offset, int screenCenterX, int screenCenterY) {
+    public void projectPoint(Camera camera, float offsetZ, float offsetX, int screenCenterX, int screenCenterY) {
         float scale = camera.getDistanceToPlane() / 
-                (worldPosition.z - camera.getPosition().z + offset);
+                (worldPosition.z - camera.getPosition().z + offsetZ);
         xScale = scale * screenCenterX;
         yScale = scale * screenCenterY;
         
         xWorld = Math.round(screenCenterX + 
-                xScale * (worldPosition.x - camera.getPosition().x));
+                xScale * (worldPosition.x - offsetX - camera.getPosition().x));
         yWorld = Math.round(screenCenterY -
                 yScale * (worldPosition.y - camera.getPosition().y));
     }

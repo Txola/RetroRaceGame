@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package main;
+import entity.Player;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2000;
     final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 210;
+    final int NUMBER_OF_SEGMENTS = 500;
     final int SEGMENT_LENGTH = 200;
     
     
@@ -26,6 +27,7 @@ public class GamePanel extends JPanel implements Runnable{
     private KeyInputHandler keyInput;
     private Circuit circuit;
     private Camera camera;
+    private Player player;
     
     float x = 350;
     float y = 600;
@@ -38,6 +40,8 @@ public class GamePanel extends JPanel implements Runnable{
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
+        float maxSpeed = (float) (SEGMENT_LENGTH / (1.0 / FRAMES_PER_SECOND));
+        player = new Player(new Coordinate3D(0, 0, 0), 10000, null, keyInput);
     }
     
     @Override
@@ -45,8 +49,7 @@ public class GamePanel extends JPanel implements Runnable{
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
-        g2.setColor(Color.BLACK);
-        g2.fillRect((int) x, (int) y, 300, 150);
+        player.drawPlayer(g2);
         g2.dispose();
     }
 
@@ -77,23 +80,7 @@ public class GamePanel extends JPanel implements Runnable{
             if (deltaTime >= 1) {
                 frameCounter++;
                 //LOGIC HERE-------
-                if (keyInput.up) {
-                    camera.increase(20);
-                    if (camera.getPosition().z > circuit.getRoadLength() - camera.getDistanceToPlayer()) {
-                        camera.restart();
-                    }
-                }
-                if (keyInput.down) {
-                   camera.increase(-15);
-                }
-                if (keyInput.left) {
-                    x -= speed * deltaT;
-                    camera.increasX(-40);
-                }
-                if (keyInput.right) {
-                    x += speed * deltaT;
-                    camera.increasX(40);
-                }
+                update(deltaT);
                 repaint();
                 //--------------
                 deltaTime--;
@@ -104,6 +91,18 @@ public class GamePanel extends JPanel implements Runnable{
                 frameCounter = 0;
                         
             }
+        }
+    }
+    
+    private void update(double dt) {
+        System.out.println(camera.getPosition().x);
+        Segment s = circuit.getCurrentSegment(camera);
+        player.updateX(s.getCurve());
+        player.update(dt);
+        camera.update(player.getPosition());
+        if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
+            camera.restart();
+            player.restart();
         }
     }
     

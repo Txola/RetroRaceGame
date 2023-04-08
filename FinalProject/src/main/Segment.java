@@ -13,10 +13,12 @@ package main;
 public class Segment {
     private Coordinate3D point1;
     private Coordinate3D point2;
+    private float curve;
 
-    public Segment(Coordinate3D point1, Coordinate3D point2) {
+    public Segment(Coordinate3D point1, Coordinate3D point2, float curve) {
         this.point1 = point1;
         this.point2 = point2;
+        this.curve = curve;
     }
 
     //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
@@ -35,7 +37,12 @@ public class Segment {
     public void setPoint2(Coordinate3D point2) {
         this.point2 = point2;
     }
+    
 //</editor-fold>
+
+    public float getCurve() {
+        return curve;
+    }
 
 
     

@@ -7,6 +7,8 @@ package main;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -18,10 +20,10 @@ public class Circuit {
     private int rumblestripWidth;
     private int segmentLenght;
     private int numberOfSegments;
-    private Segment[] roadSegments;
+    private List<Segment> roadSegments;
     final Color[] colors = {
-        new Color(80, 81, 92), //Road 1
-        new Color(108,109,117), //Road 2
+        new Color(100, 100, 110), //Road 1
+        new Color(80,80,90), //Road 2
         new Color(0, 204, 0), //Grass 1
         new Color(0, 183, 0)  // Grass 2
     };
@@ -32,7 +34,7 @@ public class Circuit {
         this.rumblestripWidth = rumblestripWidth;
         this.segmentLenght = segmentLenght;
         this.numberOfSegments = numberOfSegments;
-        this.roadSegments = createRoadSegments();
+        createRoadSegments();
         this.roadLength = numberOfSegments * segmentLenght;
     }
 
@@ -77,48 +79,67 @@ public class Circuit {
         this.numberOfSegments = numberOfSegments;
     }
     
-    public Segment[] getRoadSegments() {
+    public List<Segment> getRoadSegments() {
         return roadSegments;
     }
     
-    public void setRoadSegments(Segment[] roadSegments) {
+    public void setRoadSegments(List<Segment> roadSegments) {
         this.roadSegments = roadSegments;
-//</editor-fold>
     }
+//</editor-fold>
     
-    
-    
-    
-    
-    
-    
-    private final Segment[] createRoadSegments() {
-        Segment []segments = new Segment[numberOfSegments];
+    private final void createRoadSegments() {
+        roadSegments = new ArrayList<>();
         for (int i = 0; i < numberOfSegments; i++) {
-            segments[i] = new Segment(
+            int dx;
+            if (i < 50) {
+                dx = 0;
+            }
+            else if (i < 150) {
+                dx = 4;
+            }
+            else if ( i < 200) {
+                dx = 0;
+            }
+            else if (i < 300) {
+                dx = -4;
+            }
+            else if ( i < 400) {
+                dx = 2;
+            }
+            else dx = 0;
+            roadSegments.add(new Segment(
                             new Coordinate3D(0, 0, i * segmentLenght),
-                            new Coordinate3D(0, 0, (i + 1) * segmentLenght)
-            );
+                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
+                            dx));
         }
-        return segments;
+        /*addStraight(numberOfSegments / 8, 0);
+        addStraight( numberOfSegments / 4, numberOfSegments / 8);
+        addStraight(numberOfSegments / 8, 3 * numberOfSegments / 8);
+        addCurve(4, numberOfSegments / 4, numberOfSegments / 4);
+        addStraight(numberOfSegments / 4, 3 * numberOfSegments / 4);*/
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
         g2.setColor(new Color(21,205,212));
         g2.fillRect(0, 0, screenWidth, screenHeight);
-
         int base = getCurrentSegmentIndex(camera);
         Point previousPoint = null;
+        float acumulator = 0;
+        float offset = 0;
         
         for (int i = base; i <= base + 200; i++) {
+            
             int index = i % numberOfSegments;
-            System.out.println(index);
+                       
+            Point currentPoint = new Point(roadSegments.get(index).getPoint1());
             
-            Point currentPoint = new Point(roadSegments[index].getPoint1());
+            acumulator += roadSegments.get(index).getCurve();
+            offset += acumulator;
             
-            currentPoint.projectPoint(camera, index < base ? roadLength : 0,
+            
+            currentPoint.projectPoint(camera, index < base ? roadLength : 0, offset,
                     screenWidth / 2, screenHeight / 2);
-
             if (i > base) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
                 float currWidth = currentPoint.getXScale() * roadWidth;
@@ -149,7 +170,7 @@ public class Circuit {
                         Math.round(x3 + currWidth), x3,
                         previousPoint.getYWorld(), currentPoint.getYWorld());
    
-            }
+            }   
             
             previousPoint = currentPoint;
         }
@@ -173,5 +194,30 @@ public class Circuit {
         }
         else
             g2.setColor(color2);
+    }
+    
+    private void addCurve(int curve, int numberSegmentsCurve, int firstSegment) {
+        for (int i = firstSegment; i < numberSegmentsCurve + firstSegment; i++) {
+            roadSegments.add(new Segment(
+                            new Coordinate3D(0, 0, i * segmentLenght),
+                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
+                            curve)
+            );
+        }
+    }
+    
+    private void addStraight(int numberSegmentsStraight, int firstSegment) {
+        for (int i = firstSegment; i < numberSegmentsStraight + firstSegment; i++) {
+            roadSegments.add(new Segment(
+                            new Coordinate3D(0, 0, i * segmentLenght),
+                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
+                            0)
+            );
+        }
+    }
+    
+    
+    public Segment getCurrentSegment(Camera camera) {
+        return roadSegments.get(getCurrentSegmentIndex(camera));
     }
 }

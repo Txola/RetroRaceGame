@@ -26,6 +26,11 @@ public class Camera {
         position.x += dx;
     }
     
+    public void update(Coordinate3D playerPosition) {
+        position.x = playerPosition.x;
+        position.z = playerPosition.z - distanceToPlayer;
+    }
+    
     public void restart() {
         position.z = -distanceToPlayer;
     }
