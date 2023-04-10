@@ -177,11 +177,22 @@ public class Circuit {
     
     private void addCurve(int curve, int numberSegmentsCurve) {
         int base = roadSegments.size();
+        float auxCurve = 0;
+        float dc = (float) curve * 7 / numberSegmentsCurve;
         for (int i = 0; i < numberSegmentsCurve; i++) {
+            if (i < numberSegmentsCurve / 7) {
+                auxCurve += dc;
+            }
+            else if (i < 6 * numberSegmentsCurve / 7) {
+                auxCurve = curve;
+            }
+            else
+                auxCurve -= dc;
+           
             roadSegments.add(new Segment(
                             new Coordinate3D(0, 0, (base + i) * segmentLenght),
                             new Coordinate3D(0, 0, (base + i + 1) * segmentLenght),
-                            curve)
+                            auxCurve)
             );
         }
     }
