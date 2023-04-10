@@ -24,7 +24,9 @@ public class Player extends Vehicle{
         speed = 0;
     }
     
-    public void update(double dt) {
+    
+    
+    public void update(double dt, float dx) {
         if (input.up) {
             speed += 30;
         }
@@ -37,10 +39,10 @@ public class Player extends Vehicle{
             speed -= 30;
         }
         if (input.left) {
-            position.x -= maxSpeed / 5 * dt;
+            position.x -= dx;
         }
         if (input.right) {
-            position.x += maxSpeed / 5 * dt;
+            position.x += dx;
         }
         if (speed > maxSpeed) {
             speed = maxSpeed;

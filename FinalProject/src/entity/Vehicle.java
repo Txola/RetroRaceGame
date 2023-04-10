@@ -45,11 +45,19 @@ public class Vehicle {
         this.position = position;
     }
 
-    public float getSpeed() {
+    public float getMaxSpeed() {
         return maxSpeed;
     }
 
+    public float getSpeed() {
+        return speed;
+    }
+
     public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public void setMaxSpeed(float speed) {
         this.maxSpeed = speed;
     }
 

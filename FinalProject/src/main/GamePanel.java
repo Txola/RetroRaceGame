@@ -40,8 +40,8 @@ public class GamePanel extends JPanel implements Runnable{
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
-        float maxSpeed = (float) (SEGMENT_LENGTH / (1.0 / FRAMES_PER_SECOND));
-        player = new Player(new Coordinate3D(0, 0, 0), 10000, null, keyInput);
+        float maxSpeed = (float) (SEGMENT_LENGTH * FRAMES_PER_SECOND) - 1;
+        player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, null, keyInput);
     }
     
     @Override
@@ -97,7 +97,10 @@ public class GamePanel extends JPanel implements Runnable{
     private void update(double dt) {
         Segment s = circuit.getCurrentSegment(camera);
         player.updateX(s.getCurve());
-        player.update(dt);
+        float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
+        player.update(dt, dx);
+        System.out.println(player.getSpeed()
+        );
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();
