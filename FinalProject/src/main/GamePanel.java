@@ -95,7 +95,6 @@ public class GamePanel extends JPanel implements Runnable{
     }
     
     private void update(double dt) {
-        System.out.println(camera.getPosition().x);
         Segment s = circuit.getCurrentSegment(camera);
         player.updateX(s.getCurve());
         player.update(dt);

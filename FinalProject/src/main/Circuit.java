@@ -90,34 +90,12 @@ public class Circuit {
     
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
-        for (int i = 0; i < numberOfSegments; i++) {
-            int dx;
-            if (i < 50) {
-                dx = 0;
-            }
-            else if (i < 150) {
-                dx = 4;
-            }
-            else if ( i < 200) {
-                dx = 0;
-            }
-            else if (i < 300) {
-                dx = -4;
-            }
-            else if ( i < 400) {
-                dx = 2;
-            }
-            else dx = 0;
-            roadSegments.add(new Segment(
-                            new Coordinate3D(0, 0, i * segmentLenght),
-                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
-                            dx));
-        }
-        /*addStraight(numberOfSegments / 8, 0);
-        addStraight( numberOfSegments / 4, numberOfSegments / 8);
-        addStraight(numberOfSegments / 8, 3 * numberOfSegments / 8);
-        addCurve(4, numberOfSegments / 4, numberOfSegments / 4);
-        addStraight(numberOfSegments / 4, 3 * numberOfSegments / 4);*/
+        addCurve(0, numberOfSegments / 8);
+        addCurve(4, numberOfSegments / 8);
+        addCurve(0, numberOfSegments / 8);
+        addCurve(3, numberOfSegments / 8);
+        addCurve(-2, numberOfSegments / 4);
+        addCurve(0,numberOfSegments / 4 + numberOfSegments - roadSegments.size());
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
@@ -136,6 +114,7 @@ public class Circuit {
             
             acumulator += roadSegments.get(index).getCurve();
             offset += acumulator;
+            
             
             
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offset,
@@ -196,26 +175,18 @@ public class Circuit {
             g2.setColor(color2);
     }
     
-    private void addCurve(int curve, int numberSegmentsCurve, int firstSegment) {
-        for (int i = firstSegment; i < numberSegmentsCurve + firstSegment; i++) {
+    private void addCurve(int curve, int numberSegmentsCurve) {
+        int base = roadSegments.size();
+        for (int i = 0; i < numberSegmentsCurve; i++) {
             roadSegments.add(new Segment(
-                            new Coordinate3D(0, 0, i * segmentLenght),
-                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
+                            new Coordinate3D(0, 0, (base + i) * segmentLenght),
+                            new Coordinate3D(0, 0, (base + i + 1) * segmentLenght),
                             curve)
             );
         }
     }
     
-    private void addStraight(int numberSegmentsStraight, int firstSegment) {
-        for (int i = firstSegment; i < numberSegmentsStraight + firstSegment; i++) {
-            roadSegments.add(new Segment(
-                            new Coordinate3D(0, 0, i * segmentLenght),
-                            new Coordinate3D(0, 0, (i + 1) * segmentLenght),
-                            0)
-            );
-        }
-    }
-    
+
     
     public Segment getCurrentSegment(Camera camera) {
         return roadSegments.get(getCurrentSegmentIndex(camera));

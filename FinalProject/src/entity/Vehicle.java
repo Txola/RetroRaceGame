@@ -32,7 +32,7 @@ public class Vehicle {
 
     private final void loadImage() {
         try {
-            this.image = ImageIO.read(new File("src/resources/player_straight.png"));
+            this.image = ImageIO.read(new File("src/resources/boceto.png"));
         } catch (IOException ex) {
             Logger.getLogger(Vehicle.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -67,6 +67,6 @@ public class Vehicle {
             g2.fillRect(350, 600, 300, 150);
             return;
         }
-        g2.drawImage(image, 360, 615, 300, 150, null);
+        g2.drawImage(image, 320, 435, 400, 330, null);
     }
 }
