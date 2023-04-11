@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2000;
     final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 500;
+    final int NUMBER_OF_SEGMENTS = 1000;
     final int SEGMENT_LENGTH = 200;
     
     
@@ -99,8 +99,6 @@ public class GamePanel extends JPanel implements Runnable{
         player.updateX(s.getCurve());
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
-        System.out.println(player.getSpeed()
-        );
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();

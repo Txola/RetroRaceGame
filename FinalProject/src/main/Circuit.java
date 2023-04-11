@@ -90,12 +90,12 @@ public class Circuit {
     
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
-        addCurve(0, numberOfSegments / 8);
-        addCurve(4, numberOfSegments / 8);
-        addCurve(0, numberOfSegments / 8);
-        addCurve(3, numberOfSegments / 8);
-        addCurve(-2, numberOfSegments / 4);
-        addCurve(0,numberOfSegments / 4 + numberOfSegments - roadSegments.size());
+        addCurve(0, 4000, numberOfSegments / 4);
+        addCurve(4, 0, numberOfSegments / 8);
+        addCurve(0, 0, numberOfSegments / 8);
+        addCurve(3, 0, numberOfSegments / 8);
+        addCurve(-2, 0, numberOfSegments / 8);
+        addCurve(0, 0,numberOfSegments / 4 + numberOfSegments - roadSegments.size());
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
@@ -104,8 +104,9 @@ public class Circuit {
         int base = getCurrentSegmentIndex(camera);
         Point previousPoint = null;
         float acumulator = 0;
-        float offset = 0;
-        
+        float offsetX = 0;
+        int maxy = screenHeight;
+        float offsetY = roadSegments.get(base).getPoint1().y;
         for (int i = base; i <= base + 200; i++) {
             
             int index = i % numberOfSegments;
@@ -113,13 +114,20 @@ public class Circuit {
             Point currentPoint = new Point(roadSegments.get(index).getPoint1());
             
             acumulator += roadSegments.get(index).getCurve();
-            offset += acumulator;
+            offsetX += acumulator;
             
             
             
-            currentPoint.projectPoint(camera, index < base ? roadLength : 0, offset,
-                    screenWidth / 2, screenHeight / 2);
-            if (i > base) {
+            currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
+                    offsetY, screenWidth / 2, screenHeight / 2);
+            if (currentPoint.getYWorld() < 200) {
+//                System.out.println(currentPoint.getYWorld());
+            }
+            if (currentPoint.getYWorld() < maxy) {
+                System.out.println(maxy + " y " + currentPoint.getYWorld());
+              //  maxy = currentPoint.getYWorld();
+            }
+            if (i > base && currentPoint.getYWorld() < maxy) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
                 float currWidth = currentPoint.getXScale() * roadWidth;
 
@@ -130,7 +138,6 @@ public class Circuit {
                 setTextureColor(g2, colors[0], colors[1], i, 1);
                 drawPolygon(g2, x1, x2, x3, x4, previousPoint.getYWorld(),
                         currentPoint.getYWorld());
-                
                 
                setTextureColor(g2, colors[2], colors[3], i, 1);
                 drawPolygon(g2, 0, x1, x4, 0, previousPoint.getYWorld(),
@@ -148,7 +155,7 @@ public class Circuit {
                 drawPolygon(g2, x2, Math.round(x2 + prevWidth),
                         Math.round(x3 + currWidth), x3,
                         previousPoint.getYWorld(), currentPoint.getYWorld());
-   
+                maxy = currentPoint.getYWorld();
             }   
             
             previousPoint = currentPoint;
@@ -156,8 +163,9 @@ public class Circuit {
     }   
     
     private int getCurrentSegmentIndex(Camera camera) {
-        int index = ((camera.getPosition().z + camera.getDistanceToPlayer()) /
+        int index = ((camera.getPosition().z) /
                 segmentLenght);
+        if (index == -1) return 0;
         return index;
     }
     
@@ -175,23 +183,29 @@ public class Circuit {
             g2.setColor(color2);
     }
     
-    private void addCurve(int curve, int numberSegmentsCurve) {
+    private void addCurve(int curve, int height, int numberSegmentsCurve) {
         int base = roadSegments.size();
         float auxCurve = 0;
+        int auxHeight = 0;
         float dc = (float) curve * 7 / numberSegmentsCurve;
+        int dh = height * 7 / numberSegmentsCurve;
         for (int i = 0; i < numberSegmentsCurve; i++) {
             if (i < numberSegmentsCurve / 7) {
                 auxCurve += dc;
+                auxHeight = (int) Utils.easeInOut(0, height, (float) (7* i) / numberSegmentsCurve);
             }
             else if (i < 6 * numberSegmentsCurve / 7) {
                 auxCurve = curve;
+                auxHeight = height;
             }
-            else
+            else {
                 auxCurve -= dc;
+                auxHeight = (int) Utils.easeInOut(height, 0, (float) (7* i) / numberSegmentsCurve);
+            }
            
             roadSegments.add(new Segment(
-                            new Coordinate3D(0, 0, (base + i) * segmentLenght),
-                            new Coordinate3D(0, 0, (base + i + 1) * segmentLenght),
+                            new Coordinate3D(0, auxHeight, (base + i) * segmentLenght),
+                            new Coordinate3D(0, auxHeight, (base + i + 1) * segmentLenght),
                             auxCurve)
             );
         }
