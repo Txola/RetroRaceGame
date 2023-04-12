@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2000;
     final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 1000;
+    final int NUMBER_OF_SEGMENTS = 500;
     final int SEGMENT_LENGTH = 200;
     
     
