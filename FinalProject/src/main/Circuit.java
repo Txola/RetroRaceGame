@@ -90,12 +90,54 @@ public class Circuit {
     
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
-        addCurve(0, 4000, numberOfSegments / 4);
-        addCurve(4, 0, numberOfSegments / 8);
-        addCurve(0, 0, numberOfSegments / 8);
-        addCurve(3, 0, numberOfSegments / 8);
-        addCurve(-2, 0, numberOfSegments / 8);
-        addCurve(0, 0,numberOfSegments / 4 + numberOfSegments - roadSegments.size());
+        final int unit = numberOfSegments / 32;
+        addRoadSection(4000, -3, unit, 2 * unit, 2 *unit);
+        addRoadSection(0, 3, unit, 2 * unit, unit);
+        addRoadSection(0, 0, 2 * unit, 0, 0);
+        addRoadSection(-2000, 4, 2 * unit, unit, unit);
+        addRoadSection(3000, 0, 3 * unit, 0, 0);
+        addRoadSection(3000, 0, 2 * unit, 0, 0);
+        addRoadSection(0, 3, 2 * unit, 2 *unit, unit);
+        addRoadSection(0, -2, unit, 3 * unit, unit);
+        addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);
+    }
+    
+        private void addRoadSegment(float height, int curve) {
+        roadSegments.add(new Segment(
+                            new Coordinate3D(0, getPreviousSegmentHeight(),
+                                    roadSegments.size() * segmentLenght),
+                            new Coordinate3D(0, (int) height,
+                                    (roadSegments.size() + 1) * segmentLenght),
+                            curve)
+            );
+    }
+    
+    private void addRoadSection(int height, int curve, int enter, int maintain, int exit) {
+        int startY = getPreviousSegmentHeight();
+        int totalOfSegments = enter + maintain + exit;
+        
+        for (int i = 0; i < enter; i++) {
+            addRoadSegment((float) Utils.easeInOut(startY,
+                    height, (float) i / totalOfSegments),
+                    (int) Utils.easeInOut(0, curve, (float) i / enter));
+        }
+        
+        for (int i = 0; i < maintain; i++) {
+            addRoadSegment((float) Utils.easeInOut(startY,
+                    height, (float) (i + enter) / totalOfSegments),
+                    curve);
+        }
+        
+        for (int i = 0; i < exit; i++) {
+            addRoadSegment((float) Utils.easeInOut(startY,
+                    height, (float) (i + enter + maintain)/ totalOfSegments),
+                    (int) Utils.easeInOut(curve, 0, (float) i / exit));
+        }
+    }
+    
+    private int getPreviousSegmentHeight() {
+        return roadSegments.isEmpty() ? 0 :
+                roadSegments.get(roadSegments.size() - 1).getPoint2().y;
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
@@ -107,9 +149,9 @@ public class Circuit {
         float offsetX = 0;
         int maxy = screenHeight;
         float offsetY = roadSegments.get(base).getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
-        System.out.println(offsetY + " , " + base + " , " + 0);
+        //System.out.println(offsetY + " , " + base + " , " + 0);
         //float offsetY = roadSegments.get(base).getPoint1().y;
-        for (int i = base; i <= base + 200; i++) {
+        for (int i = base; i <= base + 300; i++) {
             
             int index = i % numberOfSegments;
                        
@@ -179,39 +221,6 @@ public class Circuit {
         }
         else
             g2.setColor(color2);
-    }
-    
-    private void addCurve(int curve, int height, int numberSegmentsCurve) {
-        int base = roadSegments.size();
-        float auxCurve = 0;
-        int auxHeight = 0;
-        int auxHeight1 = 0;
-        final int proportion = 5;
-        float dc = (float) curve * proportion / numberSegmentsCurve;
-        int dh = height * 7 / numberSegmentsCurve;
-        for (int i = 0; i < numberSegmentsCurve; i++) {
-            if (i < numberSegmentsCurve / proportion) {
-                auxCurve += dc;
-                auxHeight = (int) Utils.easeInOut(0, height, (float) (proportion* i) / numberSegmentsCurve);
-                auxHeight1 = (int) Utils.easeInOut(0, height, (float) (proportion * (i + 1)) / numberSegmentsCurve);
-
-            }
-            else if (i < (proportion - 1) * numberSegmentsCurve / proportion) {
-                auxCurve = curve;
-                auxHeight = height;
-            }
-            else {
-                auxCurve -= dc;
-                auxHeight = (int) Utils.easeInOut(height, 0, (float) (proportion* i) / numberSegmentsCurve);
-                auxHeight1 = (int) Utils.easeInOut(height, 0, (float) (proportion* (i + 1)) / numberSegmentsCurve);
-            }
-           
-            roadSegments.add(new Segment(
-                            new Coordinate3D(0, auxHeight, (base + i) * segmentLenght),
-                            new Coordinate3D(0, auxHeight1, (base + i + 1) * segmentLenght),
-                            auxCurve)
-            );
-        }
     }
     
 

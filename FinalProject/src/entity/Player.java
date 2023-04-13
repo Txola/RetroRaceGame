@@ -56,7 +56,7 @@ public class Player extends Vehicle{
     
     public void updateX(float dx) {
         if (speed > 0)
-            position.x = (int) (position.x + dx * (speed / maxSpeed) * maxSpeed / 5 * 1.0 / 60 * 0.6);
+            position.x = (int) (position.x + dx * (speed / maxSpeed) * maxSpeed / 5 * 1.0 / 60 * 0.8);
     }
     
     public void drawPlayer(Graphics2D g2) {

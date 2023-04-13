@@ -11,9 +11,6 @@ package main;
  */
 public class Utils {
     static public double easeInOut(int a, int b, float percent) {
-        if (percent > 0) {
-            System.out.println(percent);
-        }
         return a + (b - a) * ((-Math.cos(percent * Math.PI) / 2) + 0.5);
     }
 }
