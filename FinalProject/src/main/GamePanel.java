@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package main;
+import entity.Background;
 import entity.Player;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -28,6 +29,7 @@ public class GamePanel extends JPanel implements Runnable{
     private Circuit circuit;
     private Camera camera;
     private Player player;
+    private Background background;
     
     float x = 350;
     float y = 600;
@@ -42,12 +44,16 @@ public class GamePanel extends JPanel implements Runnable{
         setFocusable(true);
         float maxSpeed = (float) (SEGMENT_LENGTH * FRAMES_PER_SECOND) - 1;
         player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, null, keyInput);
+        background = new Background();
     }
     
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(new Color(21,205,212));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        //background.draw(g2);
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
         player.drawPlayer(g2);
         g2.dispose();

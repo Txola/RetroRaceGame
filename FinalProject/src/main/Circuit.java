@@ -141,8 +141,7 @@ public class Circuit {
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
-        g2.setColor(new Color(21,205,212));
-        g2.fillRect(0, 0, screenWidth, screenHeight);
+        
         int base = getCurrentSegmentIndex(camera);
         Point previousPoint = null;
         float acumulator = 0;
