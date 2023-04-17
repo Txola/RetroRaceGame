@@ -20,7 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2500;
     final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 700;
+    final int NUMBER_OF_SEGMENTS = 600;
     final int SEGMENT_LENGTH = 200;
     
     
@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements Runnable{
         g2.fillRect(0, 0, getWidth(), getHeight());
         //background.draw(g2);
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
-        player.drawPlayer(g2);
+        player.draw(g2, getWidth(), getHeight());
         g2.dispose();
     }
 
@@ -101,6 +101,13 @@ public class GamePanel extends JPanel implements Runnable{
     }
     
     private void update(double dt) {
+        
+        if (keyInput.plus) {
+            camera.updateHeight(25);
+        }
+        if (keyInput.minus) {
+            camera.updateHeight(-25);
+        }
         Segment s = circuit.getCurrentSegment(camera);
         player.updateX(s.getCurve());
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);

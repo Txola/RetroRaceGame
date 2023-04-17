@@ -13,13 +13,15 @@ import java.awt.event.KeyListener;
  * @author txola
  */
 public class KeyInputHandler implements KeyListener{
-    public Boolean up, down, right, left;
+    public Boolean up, down, right, left, plus, minus;
 
     public KeyInputHandler() {
         this.up = false;
         this.down = false;
         this.right = false;
         this.left = false;
+        this.plus = false;
+        this.minus = false;
     }
     
     
@@ -44,6 +46,12 @@ public class KeyInputHandler implements KeyListener{
             case KeyEvent.VK_RIGHT:
                 right = true;
                 break;
+            case KeyEvent.VK_PLUS:
+                plus = true;
+                break;
+            case KeyEvent.VK_MINUS:
+                minus = true;
+                break;
         }
     }
 
@@ -63,6 +71,12 @@ public class KeyInputHandler implements KeyListener{
                 break;
             case KeyEvent.VK_RIGHT:
                 right = false;
+                break;
+            case KeyEvent.VK_PLUS:
+                plus = false;
+                break;
+            case KeyEvent.VK_MINUS:
+                minus = false;
                 break;
         }
     }
