@@ -22,7 +22,7 @@ public class Circuit {
     private int numberOfSegments;
     private List<Segment> roadSegments;
     final Color[] colors = {
-        new Color(100, 100, 110), //Road 1
+        new Color(90, 90, 100), //Road 1
         new Color(80,80,90), //Road 2
         new Color(0, 204, 0), //Grass 1
         new Color(0, 183, 0)  // Grass 2

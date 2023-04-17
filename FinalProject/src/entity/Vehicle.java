@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import main.Coordinate3D;
+import main.*;
 
 /**
  *
@@ -23,16 +23,18 @@ public class Vehicle {
     float maxSpeed;
     float speed;
     BufferedImage image;
+    final int scale;
 
-    public Vehicle(Coordinate3D position, float maxSpeed, BufferedImage image) {
+    public Vehicle(Coordinate3D position, float maxSpeed, String image, int scale) {
         this.position = position;
         this.maxSpeed = maxSpeed;
-        loadImage();
+        this.scale = scale;
+        loadImage(image);
     }
 
-    private final void loadImage() {
+    private final void loadImage(String image) {
         try {
-            this.image = ImageIO.read(new File("src/resources/boceto.png"));
+            this.image = ImageIO.read(new File(image));
         } catch (IOException ex) {
             Logger.getLogger(Vehicle.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -69,12 +71,14 @@ public class Vehicle {
         this.image = image;
     }
     
-    public void draw(Graphics2D g2) {
-        
-        if (image == null) {
-            g2.fillRect(350, 600, 300, 150);
-            return;
-        }
-        g2.drawImage(image, 320, 435, 400, 330, null);
+    public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
+        Point point = new Point(position);
+        point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
+        float xScale = point.getXScale();
+        float yScale = point.getYScale();
+        int imageWidth = (int) (image.getWidth() * scale * xScale);
+        int imageHeight = (int) (image.getHeight() * scale * yScale);
+        g2.drawImage(image, screenWidth / 2 - imageWidth / 2, 
+                screenHeight - imageHeight, imageWidth, imageHeight, null);
     }
 }

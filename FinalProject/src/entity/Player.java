@@ -18,8 +18,9 @@ import main.KeyInputHandler;
 public class Player extends Vehicle{
     KeyInputHandler input;
 
-    public Player(Coordinate3D position, float maxSpeed, BufferedImage image, KeyInputHandler input) {
-        super(position, maxSpeed, image);
+    public Player(Coordinate3D position, float maxSpeed, String image,
+            int scale, KeyInputHandler input) {
+        super(position, maxSpeed, image, scale);
         this.input = input;
         speed = 0;
     }
@@ -57,9 +58,5 @@ public class Player extends Vehicle{
     public void updateX(float dx) {
         if (speed > 0)
             position.x = (int) (position.x + dx * (speed / maxSpeed) * maxSpeed / 5 * 1.0 / 60 * 0.8);
-    }
-    
-    public void drawPlayer(Graphics2D g2) {
-        super.draw(g2);
     }
 }

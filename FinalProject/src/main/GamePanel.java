@@ -43,7 +43,7 @@ public class GamePanel extends JPanel implements Runnable{
         addKeyListener(keyInput);
         setFocusable(true);
         float maxSpeed = (float) (SEGMENT_LENGTH * FRAMES_PER_SECOND) - 1;
-        player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, null, keyInput);
+        player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, "src/resources/boceto.png", 25, keyInput);
         background = new Background();
     }
     
@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements Runnable{
         g2.fillRect(0, 0, getWidth(), getHeight());
         //background.draw(g2);
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
-        player.draw(g2, getWidth(), getHeight());
+        player.draw(g2, getWidth(), getHeight(), camera);
         g2.dispose();
     }
 
