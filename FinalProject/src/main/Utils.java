@@ -10,7 +10,7 @@ package main;
  * @author txola
  */
 public class Utils {
-    static public double easeInOut(int a, int b, float percent) {
+    static public double easeInOut(float a, float b, float percent) {
         return a + (b - a) * ((-Math.cos(percent * Math.PI) / 2) + 0.5);
     }
 }

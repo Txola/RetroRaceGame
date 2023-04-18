@@ -19,14 +19,17 @@ import main.*;
  * @author txola
  */
 public class Vehicle {
-    Coordinate3D position;
+    Circuit circuit;
+    public Coordinate3D position;
     float maxSpeed;
     float speed;
     BufferedImage image;
     final int scale;
+    public boolean looped = false;
 
-    public Vehicle(Coordinate3D position, float maxSpeed, String image, int scale) {
+    public Vehicle(Coordinate3D position, float maxSpeed, String image, int scale, Circuit circuit) {
         this.position = position;
+        this.circuit = circuit;
         this.maxSpeed = maxSpeed;
         this.scale = scale;
         loadImage(image);
@@ -43,6 +46,10 @@ public class Vehicle {
         return position;
     }
 
+    public void restart() {
+        position.z = 0;
+    }
+    
     public void setPosition(Coordinate3D position) {
         this.position = position;
     }
@@ -65,20 +72,38 @@ public class Vehicle {
 
     public BufferedImage getImage() {
         return image;
-    }
+    }   
 
     public void setImage(BufferedImage image) {
         this.image = image;
     }
     
+    public void update(double dt) {
+        position.z  += dt * maxSpeed / 3;
+    }
+    
     public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
-        Point point = new Point(position);
-        point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
-        float xScale = point.getXScale();
-        float yScale = point.getYScale();
-        int imageWidth = (int) (image.getWidth() * scale * xScale);
-        int imageHeight = (int) (image.getHeight() * scale * yScale);
-        g2.drawImage(image, screenWidth / 2 - imageWidth / 2, 
-                screenHeight - imageHeight, imageWidth, imageHeight, null);
+        if (camera.getPosition().z < position.z || looped) {
+            if (position.z > circuit.getRoadLength()) {
+                restart();
+                looped = true;
+            }
+            Segment currentSegment = circuit.getCurrentSegment(position.z);
+            Segment baseSegment = circuit.getCurrentSegment(camera.getPosition().z + (int) camera.getDistanceToPlayer());
+            float offsetY = currentSegment.getYOffset(position.z) - baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
+            Point point = new Point(position);
+            point.projectPoint(camera, looped ? circuit.getRoadLength() : 0,
+                    currentSegment.offsetX, -offsetY, screenWidth / 2, screenHeight / 2);
+            float xScale = point.getXScale();
+            float yScale = point.getYScale();
+            int imageWidth = (int) (image.getWidth() * scale * xScale);
+            int imageHeight = (int) (image.getHeight() * scale * yScale);
+            if (point.getYWorld() < currentSegment.maxy + imageHeight) {
+                g2.drawImage(image, point.getXWorld() - imageWidth / 2, 
+                    point.getYWorld() - imageHeight, imageWidth, imageHeight, null);
+            }
+        }
     }
 }
+
+  

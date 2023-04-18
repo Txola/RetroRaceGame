@@ -12,11 +12,11 @@ package main;
 public class Camera {
     private Coordinate3D position;
     private float distanceToPlane;
-    private int distanceToPlayer;
+    private float distanceToPlayer;
 
     public Camera() {
         position = new Coordinate3D(0, 1000, -300);
-        distanceToPlane = -position.z / (float) position.y;
+        distanceToPlane = -position.z / position.y;
         distanceToPlayer = -position.z;
     }
     public void increase(int dz) {
@@ -26,7 +26,7 @@ public class Camera {
         position.x += dx;
     }
     
-    public void updateHeight(int dy) {
+    public void updateHeight(float dy) {
         position.y += dy;
         float dz = (position.y * distanceToPlayer) / (position.y - Math.abs(dy)) - distanceToPlayer;
         dz = dy > 0 ? dz : -dz;
@@ -66,7 +66,7 @@ public class Camera {
         this.distanceToPlane = distanceToPlane;
     }
     
-     public int getDistanceToPlayer() {
+     public float getDistanceToPlayer() {
         return distanceToPlayer;
     }
 

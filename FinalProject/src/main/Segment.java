@@ -14,6 +14,8 @@ public class Segment {
     private Coordinate3D point1;
     private Coordinate3D point2;
     private float curve;
+    public float offsetX;
+    public float maxy;
 
     public Segment(Coordinate3D point1, Coordinate3D point2, float curve) {
         this.point1 = point1;
@@ -45,14 +47,10 @@ public class Segment {
     }
     
     public float getYOffset(float z) {
-        if (z > 1100) {
-            System.out.println("a");
-        }
+      
         float percent = (z - point1.z) / (point2.z -point1.z);
-        System.out.println(percent);
        // float result = point1.
         float result =  (float) point1.y + (float) percent * (float) ((float) ((float)point2.y - (float)point1.y));
-        System.out.println(result);
         return result;
     }
 

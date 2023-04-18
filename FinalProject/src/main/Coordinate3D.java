@@ -10,9 +10,9 @@ package main;
  * @author txola
  */
 public class Coordinate3D {
-    public int x, y, z;
+    public float x, y, z;
 
-    public Coordinate3D(int x, int y, int z) {
+    public Coordinate3D(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;

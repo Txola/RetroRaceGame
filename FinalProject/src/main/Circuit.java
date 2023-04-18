@@ -91,6 +91,7 @@ public class Circuit {
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 32;
+        //addRoadSection(0, 0, 0, numberOfSegments, 0);
         addRoadSection(4000, -3, unit, 2 * unit, 2 *unit);
         addRoadSection(0, 3, unit, 2 * unit, unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
@@ -113,7 +114,7 @@ public class Circuit {
     }
     
     private void addRoadSection(int height, int curve, int enter, int maintain, int exit) {
-        int startY = getPreviousSegmentHeight();
+        float startY = getPreviousSegmentHeight();
         int totalOfSegments = enter + maintain + exit;
         
         for (int i = 0; i < enter; i++) {
@@ -135,14 +136,14 @@ public class Circuit {
         }
     }
     
-    private int getPreviousSegmentHeight() {
+    private float getPreviousSegmentHeight() {
         return roadSegments.isEmpty() ? 0 :
                 roadSegments.get(roadSegments.size() - 1).getPoint2().y;
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
         
-        int base = getCurrentSegmentIndex(camera);
+        int base = getCurrentSegmentIndex(camera.getPosition().z + camera.getDistanceToPlayer());
         Point previousPoint = null;
         float acumulator = 0;
         float offsetX = 0;
@@ -159,7 +160,7 @@ public class Circuit {
             acumulator += roadSegments.get(index).getCurve();
             offsetX += acumulator;
             
-            
+            roadSegments.get(index).offsetX = offsetX;
             
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
                     offsetY, screenWidth / 2, screenHeight / 2);
@@ -197,14 +198,13 @@ public class Circuit {
                         previousPoint.getYWorld(), currentPoint.getYWorld());
                 maxy = currentPoint.getYWorld();
             }   
-            
+            roadSegments.get(index).maxy = maxy;
             previousPoint = currentPoint;
         }
     }   
     
-    private int getCurrentSegmentIndex(Camera camera) {
-        int index = ((camera.getPosition().z + camera.getDistanceToPlayer()) /
-                segmentLenght);
+    private int getCurrentSegmentIndex(float z) {
+        int index = (int) z / segmentLenght;
         return index;
     }
     
@@ -224,7 +224,7 @@ public class Circuit {
     
 
     
-    public Segment getCurrentSegment(Camera camera) {
-        return roadSegments.get(getCurrentSegmentIndex(camera));
+    public Segment getCurrentSegment(float z) {
+        return roadSegments.get(getCurrentSegmentIndex(z));
     }
 }
