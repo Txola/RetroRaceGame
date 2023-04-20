@@ -20,6 +20,7 @@ public class Circuit {
     private int rumblestripWidth;
     private int segmentLenght;
     private int numberOfSegments;
+    final int numberOfVisibleSegments;
     private List<Segment> roadSegments;
     final Color[] colors = {
         new Color(90, 90, 100), //Road 1
@@ -29,11 +30,12 @@ public class Circuit {
     };
 
 
-    public Circuit(int roadWidth, int rumblestripWidth, int segmentLenght, int numberOfSegments) {
+    public Circuit(int roadWidth, int rumblestripWidth, int segmentLenght, int numberOfSegments, int numberOfVisibleSegments) {
         this.roadWidth = roadWidth;
         this.rumblestripWidth = rumblestripWidth;
         this.segmentLenght = segmentLenght;
         this.numberOfSegments = numberOfSegments;
+        this.numberOfVisibleSegments = numberOfVisibleSegments;
         createRoadSegments();
         this.roadLength = numberOfSegments * segmentLenght;
     }
@@ -86,6 +88,12 @@ public class Circuit {
     public void setRoadSegments(List<Segment> roadSegments) {
         this.roadSegments = roadSegments;
     }
+
+    public int getNumberOfVisibleSegments() {
+        return numberOfVisibleSegments;
+    }
+    
+    
 //</editor-fold>
     
     private final void createRoadSegments() {
@@ -151,7 +159,7 @@ public class Circuit {
         float offsetY = roadSegments.get(base).getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
         //System.out.println(offsetY + " , " + base + " , " + 0);
         //float offsetY = roadSegments.get(base).getPoint1().y;
-        for (int i = base; i <= base + 300; i++) {
+        for (int i = base; i <= base + numberOfVisibleSegments; i++) {
             
             int index = i % numberOfSegments;
                        
@@ -203,7 +211,7 @@ public class Circuit {
         }
     }   
     
-    private int getCurrentSegmentIndex(float z) {
+    public int getCurrentSegmentIndex(float z) {
         int index = (int) z / segmentLenght;
         return index;
     }

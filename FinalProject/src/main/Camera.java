@@ -30,8 +30,6 @@ public class Camera {
         position.y += dy;
         float dz = (position.y * distanceToPlayer) / (position.y - dy) - distanceToPlayer;
         updateDepth(dz);
-        
-        
     }
     
     public void updateDepth(float dz) {

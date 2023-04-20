@@ -78,16 +78,21 @@ public class Vehicle {
         this.image = image;
     }
     
-    public void update(double dt) {
-        position.z  += dt * maxSpeed / 3;
+    public void update(double dt, int s) {
+        position.z  += dt * maxSpeed / s;
     }
     
     public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
-        if (camera.getPosition().z < position.z || looped) {
-            if (position.z > circuit.getRoadLength()) {
-                restart();
-                looped = true;
-            }
+        if (position.z > circuit.getRoadLength()) {
+            restart();
+            looped = true;
+        }
+        else if (camera.getPosition().z < position.z) {
+            looped = false;
+        }
+        int baseIndex = circuit.getCurrentSegmentIndex(camera.getPosition().z + + camera.getDistanceToPlayer()); 
+        int currentIndex = circuit.getCurrentSegmentIndex(position.z);
+        if (baseIndex <= currentIndex || (looped && ((circuit.getNumberOfSegments() - baseIndex + currentIndex) < circuit.getNumberOfVisibleSegments()) ))  {
             Segment currentSegment = circuit.getCurrentSegment(position.z);
             Segment baseSegment = circuit.getCurrentSegment(camera.getPosition().z + (int) camera.getDistanceToPlayer());
             float offsetY = currentSegment.getYOffset(position.z) - baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());

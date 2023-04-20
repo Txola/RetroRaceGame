@@ -31,7 +31,7 @@ public class GamePanel extends JPanel implements Runnable{
     private Camera camera;
     private Player player;
     private Background background;
-    private Vehicle vehicle;
+    private Vehicle vehicle, vehicle2;
     
     float x = 350;
     float y = 600;
@@ -39,7 +39,7 @@ public class GamePanel extends JPanel implements Runnable{
     
     public GamePanel() {
         setBackground(Color.WHITE); //QUITAR LUEGO
-        circuit = new Circuit(ROAD_WIDTH, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS);
+        circuit = new Circuit(ROAD_WIDTH, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS, 300);
         camera = new Camera();
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
@@ -48,6 +48,7 @@ public class GamePanel extends JPanel implements Runnable{
         player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, "src/resources/boceto.png", 25, keyInput, circuit);
         background = new Background();
         vehicle = new Vehicle(new Coordinate3D(0, 0, 1000), maxSpeed, "src/resources/player_straight.png", 12, circuit);
+        vehicle2 = new Vehicle(new Coordinate3D(ROAD_WIDTH / 2, 0, 2000), maxSpeed, "src/resources/player_straight.png", 12, circuit);
     }
     
     @Override
@@ -60,6 +61,7 @@ public class GamePanel extends JPanel implements Runnable{
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
         player.draw(g2, getWidth(), getHeight(), camera);
         vehicle.draw(g2, getWidth(), getHeight(), camera);
+        vehicle2.draw(g2, getWidth(), getHeight(), camera);
         g2.dispose();
     }
 
@@ -107,21 +109,21 @@ public class GamePanel extends JPanel implements Runnable{
     private void update(double dt) {
         
         if (keyInput.plus) {
-            camera.updateHeight(25);
+            camera.updateHeight(30);
         }
         if (keyInput.minus) {
-            camera.updateHeight(-25);
+            camera.updateHeight(-30);
         }
         Segment s = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
         player.updateX(s.getCurve());
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
-        vehicle.update(dt);
+        vehicle.update(dt, 2);
+        vehicle2.update(dt, 3);
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();
             player.restart();
-            vehicle.looped = false;
         }
         
     }
