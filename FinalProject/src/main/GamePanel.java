@@ -118,8 +118,8 @@ public class GamePanel extends JPanel implements Runnable{
         player.updateX(s.getCurve());
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
-        vehicle.update(dt, 2);
-        vehicle2.update(dt, 3);
+        vehicle.update(dt, 3);
+        vehicle2.update(dt, 4);
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();
