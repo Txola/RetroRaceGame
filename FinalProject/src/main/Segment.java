@@ -46,12 +46,12 @@ public class Segment {
         return curve;
     }
     
+    public float getSegmentPercent(float z) {
+        return (z - point1.z) / (point2.z -point1.z);
+    }
+    
     public float getYOffset(float z) {
-      
-        float percent = (z - point1.z) / (point2.z -point1.z);
-       // float result = point1.
-        float result =  (float) point1.y + (float) percent * (float) ((float) ((float)point2.y - (float)point1.y));
-        return result;
+        return point1.y + getSegmentPercent(z) * (point2.y - point1.y);
     }
 
 

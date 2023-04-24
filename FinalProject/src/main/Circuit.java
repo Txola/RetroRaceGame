@@ -99,8 +99,8 @@ public class Circuit {
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 32;
-        //addRoadSection(0, 0, 0, numberOfSegments, 0);
-        addRoadSection(4000, -3, unit, 2 * unit, 2 *unit);
+        //addRoadSection(0, 40, 0, numberOfSegments, 0);
+        addRoadSection(4000, -20, unit, 2 * unit, 2 *unit);
         addRoadSection(0, 3, unit, 2 * unit, unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
         addRoadSection(-2000, 4, 2 * unit, unit, unit);
@@ -153,28 +153,24 @@ public class Circuit {
         
         int base = getCurrentSegmentIndex(camera.getPosition().z + camera.getDistanceToPlayer());
         Point previousPoint = null;
-        float acumulator = 0;
+        Segment currentSegment = roadSegments.get(base);
+        float acumulator = -currentSegment.getCurve() * currentSegment.getSegmentPercent(camera.getPosition().z + camera.getDistanceToPlayer());
         float offsetX = 0;
+        
         int maxy = screenHeight;
         float offsetY = roadSegments.get(base).getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
-        //System.out.println(offsetY + " , " + base + " , " + 0);
-        //float offsetY = roadSegments.get(base).getPoint1().y;
         for (int i = base; i <= base + numberOfVisibleSegments; i++) {
             
             int index = i % numberOfSegments;
                        
             Point currentPoint = new Point(roadSegments.get(index).getPoint1());
-            
             acumulator += roadSegments.get(index).getCurve();
             offsetX += acumulator;
-            
+
             roadSegments.get(index).offsetX = offsetX;
             
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
                     offsetY, screenWidth / 2, screenHeight / 2);
-            if (currentPoint.getYWorld() < 200) {
-//                System.out.println(currentPoint.getYWorld());
-            }
 
             if (i > base && currentPoint.getYWorld() < maxy) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
