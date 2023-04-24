@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements Runnable{
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
-        float maxSpeed = (float) (SEGMENT_LENGTH * FRAMES_PER_SECOND) - 1;
+        float maxSpeed = (float) (SEGMENT_LENGTH * 0.7 * FRAMES_PER_SECOND) - 1;
         player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, "src/resources/boceto.png", 25, keyInput, circuit);
         background = new Background();
         vehicle = new Vehicle(new Coordinate3D(0, 0, 1000), maxSpeed, "src/resources/player_straight.png", 12, circuit);

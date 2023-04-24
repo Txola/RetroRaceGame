@@ -92,9 +92,10 @@ public class Vehicle {
         }
         int baseIndex = circuit.getCurrentSegmentIndex(camera.getPosition().z + camera.getDistanceToPlayer()); 
         int currentIndex = circuit.getCurrentSegmentIndex(position.z);
-        if (baseIndex <= currentIndex && (currentIndex - baseIndex) < circuit.getNumberOfVisibleSegments()|| (looped && ((circuit.getNumberOfSegments() - baseIndex + currentIndex) < circuit.getNumberOfVisibleSegments()) ))  {
+        if (baseIndex <= currentIndex && (currentIndex - baseIndex) < circuit.getNumberOfVisibleSegments() ||
+                (looped && ((circuit.getNumberOfSegments() - baseIndex + currentIndex) < circuit.getNumberOfVisibleSegments()) ))  {
             Segment currentSegment = circuit.getCurrentSegment(position.z);
-            Segment baseSegment = circuit.getCurrentSegment(camera.getPosition().z + (int) camera.getDistanceToPlayer());
+            Segment baseSegment = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
             float offsetY = currentSegment.getYOffset(position.z) - baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
             Point point = new Point(position);
             point.projectPoint(camera, looped ? circuit.getRoadLength() : 0,
@@ -103,10 +104,6 @@ public class Vehicle {
             float yScale = point.getYScale();
             int imageWidth = (int) (image.getWidth() * scale * xScale);
             int imageHeight = (int) (image.getHeight() * scale * yScale);
-            System.out.println(currentSegment.maxy);
-            if (currentSegment.maxy == 0) {
-                looped = looped;
-            }
             if (point.getYWorld() < currentSegment.maxy + imageHeight) {
                 g2.drawImage(image, point.getXWorld() - imageWidth / 2, 
                     point.getYWorld() - imageHeight, imageWidth, imageHeight, null);
