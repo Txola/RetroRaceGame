@@ -60,8 +60,8 @@ public class GamePanel extends JPanel implements Runnable{
         //background.draw(g2);
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
         player.draw(g2, getWidth(), getHeight(), camera);
-        vehicle.draw(g2, getWidth(), getHeight(), camera);
-        vehicle2.draw(g2, getWidth(), getHeight(), camera);
+        //vehicle.draw(g2, getWidth(), getHeight(), camera);
+        //vehicle2.draw(g2, getWidth(), getHeight(), camera);
         g2.dispose();
     }
 

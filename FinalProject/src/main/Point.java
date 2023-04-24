@@ -11,7 +11,7 @@ package main;
  */
 public class Point {
     private Coordinate3D worldPosition;
-    private int xWorld, yWorld;
+    private int xScreen, yScreen;
     private float xScale, yScale;
     
 
@@ -19,21 +19,47 @@ public class Point {
         this.worldPosition = worldPosition;
     }
 
-    public int getXWorld() {
-        return xWorld;
+    //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
+    public Coordinate3D getWorldPosition() {
+        return worldPosition;
     }
 
-    public int getYWorld() {
-        return yWorld;
+    public void setWorldPosition(Coordinate3D worldPosition) {
+        this.worldPosition = worldPosition;
+    }
+
+    public int getXScreen() {
+        return xScreen;
+    }
+
+    public void setXScreen(int xScreen) {
+        this.xScreen = xScreen;
+    }
+
+    public int getYScreen() {
+        return yScreen;
+    }
+
+    public void setYScreen(int yScreen) {
+        this.yScreen = yScreen;
     }
 
     public float getXScale() {
         return xScale;
     }
 
+    public void setXScale(float xScale) {
+        this.xScale = xScale;
+    }
+
     public float getYScale() {
         return yScale;
     }
+
+    public void setYScale(float yScale) {
+        this.yScale = yScale;
+    }
+//</editor-fold>
 
     
     public void projectPoint(Camera camera, float offsetZ, float offsetX, float offsetY, int screenCenterX, int screenCenterY) {
@@ -42,9 +68,9 @@ public class Point {
         xScale = scale * screenCenterX;
         yScale = scale * screenCenterY;
         
-        xWorld = Math.round(screenCenterX + 
+        xScreen = Math.round(screenCenterX + 
                 xScale * (worldPosition.x - offsetX - camera.getPosition().x));
-        yWorld = Math.round(screenCenterY -
+        yScreen = Math.round(screenCenterY -
                 yScale * (worldPosition.y - offsetY - camera.getPosition().y));
     }
     
