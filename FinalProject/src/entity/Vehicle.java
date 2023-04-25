@@ -99,7 +99,7 @@ public class Vehicle {
             float offsetY = currentSegment.getYOffset(position.z) - baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
             Point point = new Point(position);
             point.projectPoint(camera, looped ? circuit.getRoadLength() : 0,
-                    currentSegment.offsetX, -offsetY, screenWidth / 2, screenHeight / 2);
+                    currentSegment.getXOffset(position.z), -offsetY, screenWidth / 2, screenHeight / 2);
             float xScale = point.getXScale();
             float yScale = point.getYScale();
             int imageWidth = (int) (image.getWidth() * scale * xScale);

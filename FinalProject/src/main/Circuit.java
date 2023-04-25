@@ -167,10 +167,12 @@ public class Circuit {
             acumulator += roadSegments.get(index).getCurve();
             offsetX += acumulator;
 
-            roadSegments.get(index).offsetX = offsetX;
+            roadSegments.get(index).offsetX1 = offsetX;
             
+          
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
                     offsetY, screenWidth / 2, screenHeight / 2);
+            roadSegments.get(index == 0 ? numberOfSegments - 1 : index - 1).offsetX2 = offsetX;
 
             if (i > base && currentPoint.getYWorld() < maxy) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
@@ -213,8 +215,8 @@ public class Circuit {
     }
     
     private void drawPolygon(Graphics2D g2, int x1, int x2, int x3, int x4, int y1, int y2) {
-        int []x = {x1, x2, x3, x4};
-        int []y = {y1, y1, y2, y2};
+        int[] x = {x1, x2, x3, x4};
+        int[] y = {y1, y1, y2, y2};
         g2.fillPolygon(x, y, 4);  
     }
     
