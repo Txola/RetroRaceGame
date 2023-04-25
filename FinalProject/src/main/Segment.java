@@ -55,7 +55,7 @@ public class Segment {
     }
 
     public float getXOffset(float z) {
-        System.out.println("-------\n" + offsetX1 + ", " + offsetX2 + "\n ------");
+        //System.out.println("-------\n" + offsetX1 + ", " + offsetX2 + "\n ------");
         return offsetX1 + getSegmentPercent(z) * (offsetX2 - offsetX1);
     }
 

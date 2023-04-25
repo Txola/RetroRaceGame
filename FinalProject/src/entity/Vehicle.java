@@ -105,8 +105,21 @@ public class Vehicle {
             int imageWidth = (int) (image.getWidth() * scale * xScale);
             int imageHeight = (int) (image.getHeight() * scale * yScale);
             if (point.getYWorld() < currentSegment.maxy + imageHeight) {
-                g2.drawImage(image, point.getXWorld() - imageWidth / 2, 
-                    point.getYWorld() - imageHeight, imageWidth, imageHeight, null);
+                int s2y, d2y;
+                if (currentSegment.maxy < point.getYWorld()) {
+                    s2y = (int) (image.getHeight() * 
+                        (imageHeight - point.getYWorld() + currentSegment.maxy)
+                        / imageHeight);
+                    d2y = (int) currentSegment.maxy;
+                }
+                else {
+                    s2y = image.getHeight();
+                    d2y = point.getYWorld();
+                }
+                g2.drawImage(image, point.getXWorld() - imageWidth / 2,
+                        point.getYWorld() - imageHeight, 
+                        point.getXWorld() + imageWidth / 2, 
+                        d2y, 0, 0, image.getWidth(), s2y, null);
             }
         }
     }

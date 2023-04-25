@@ -47,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable{
         float maxSpeed = (float) (SEGMENT_LENGTH * 0.7 * FRAMES_PER_SECOND) - 1;
         player = new Player(new Coordinate3D(0, 0, 0), maxSpeed, "src/resources/boceto.png", 25, keyInput, circuit);
         background = new Background();
-        vehicle = new Vehicle(new Coordinate3D(0, 0, 1000), maxSpeed, "src/resources/player_straight.png", 12, circuit);
+        vehicle = new Vehicle(new Coordinate3D(0, 0, 1000), maxSpeed, "src/resources/player_straight.png", 13, circuit);
         vehicle2 = new Vehicle(new Coordinate3D(ROAD_WIDTH / 2, 0, 2000), maxSpeed, "src/resources/player_straight.png", 12, circuit);
     }
     
@@ -118,7 +118,7 @@ public class GamePanel extends JPanel implements Runnable{
         player.updateX(s.getCurve());
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
-        vehicle.update(dt, 3);
+        vehicle.update(dt, 4);
         vehicle2.update(dt, 4);
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {

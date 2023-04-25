@@ -99,16 +99,16 @@ public class Circuit {
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 32;
-        addRoadSection(0, 15, 0, numberOfSegments, 0);
-        /*addRoadSection(4000, -20, unit, 3 * unit, 2 *unit);
-        addRoadSection(0, 3, unit, 2 * unit, unit);
+        //addRoadSection(0, 15, 0, numberOfSegments, 0);
+        addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
+        addRoadSection(0, 3,  2 *unit, 1 * unit, unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
-        addRoadSection(-2000, 4, 2 * unit, unit, unit);
+        addRoadSection(7000, 0, 2 * unit, unit, unit);
         addRoadSection(3000, 0, 3 * unit, 0, 0);
         addRoadSection(3000, 0, 2 * unit, 0, 0);
-        addRoadSection(0, 3, 2 * unit, 2 *unit, unit);
+        addRoadSection(0, -15, 2 * unit, 2 *unit, unit);
         addRoadSection(0, -2, unit, 3 * unit, unit);
-        addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);*/
+        addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);
     }
     
         private void addRoadSegment(float height, int curve) {
