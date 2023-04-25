@@ -111,17 +111,17 @@ public class Circuit {
         addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);*/
     }
     
-        private void addRoadSegment(float height, float curve) {
+        private void addRoadSegment(float height, int curve) {
         roadSegments.add(new Segment(
-                            new Point(new Coordinate3D(0, getPreviousSegmentHeight(),
-                                    roadSegments.size() * segmentLenght)),
-                            new Point(new Coordinate3D(0, (int) height,
-                                    (roadSegments.size() + 1) * segmentLenght)),
+                            new Coordinate3D(0, getPreviousSegmentHeight(),
+                                    roadSegments.size() * segmentLenght),
+                            new Coordinate3D(0, (int) height,
+                                    (roadSegments.size() + 1) * segmentLenght),
                             curve)
             );
     }
     
-    private void addRoadSection(int height, float curve, int enter, int maintain, int exit) {
+    private void addRoadSection(int height, int curve, int enter, int maintain, int exit) {
         float startY = getPreviousSegmentHeight();
         int totalOfSegments = enter + maintain + exit;
         
@@ -146,64 +146,61 @@ public class Circuit {
     
     private float getPreviousSegmentHeight() {
         return roadSegments.isEmpty() ? 0 :
-                roadSegments.get(
-                        roadSegments.size() - 1).getPoint2().getWorldPosition().y;
+                roadSegments.get(roadSegments.size() - 1).getPoint2().y;
     }
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
         
         int base = getCurrentSegmentIndex(camera.getPosition().z + camera.getDistanceToPlayer());
-        Segment baseSegment = roadSegments.get(base);
         Point previousPoint = null;
-        float acumulator = -baseSegment.getCurve() * baseSegment.
-                getSegmentPercent(camera.getPosition().z + camera.getDistanceToPlayer());
+        Segment currentSegment = roadSegments.get(base);
+        float acumulator = -currentSegment.getCurve() * currentSegment.getSegmentPercent(camera.getPosition().z + camera.getDistanceToPlayer());
         float offsetX = 0;
-        int maxy = screenHeight;
-        float offsetY = baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
         
+        int maxy = screenHeight;
+        float offsetY = roadSegments.get(base).getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
         for (int i = base; i <= base + numberOfVisibleSegments; i++) {
             
             int index = i % numberOfSegments;
                        
-            Point currentPoint = roadSegments.get(index).getPoint1();
+            Point currentPoint = new Point(roadSegments.get(index).getPoint1());
             acumulator += roadSegments.get(index).getCurve();
             offsetX += acumulator;
 
+            roadSegments.get(index).offsetX = offsetX;
             
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
                     offsetY, screenWidth / 2, screenHeight / 2);
 
-            if (i > base && currentPoint.getYScreen() < maxy) {
-                System.out.println(base);
-                roadSegments.get(index == 0 ? numberOfSegments - 1 : index - 1)
-                        .setPoint2(currentPoint);
+            if (i > base && currentPoint.getYWorld() < maxy) {
                 float prevWidth = previousPoint.getXScale() * roadWidth;
                 float currWidth = currentPoint.getXScale() * roadWidth;
-                int x1 = Math.round(previousPoint.getXScreen() - prevWidth);
-                int x2 = Math.round(previousPoint.getXScreen() + prevWidth);
-                int x3 = Math.round(currentPoint.getXScreen() + currWidth);
-                int x4 = Math.round(currentPoint.getXScreen() - currWidth);
+
+                int x1 = Math.round(previousPoint.getXWorld() - prevWidth);
+                int x2 = Math.round(previousPoint.getXWorld() + prevWidth);
+                int x3 = Math.round(currentPoint.getXWorld() + currWidth);
+                int x4 = Math.round(currentPoint.getXWorld() - currWidth);
                 setTextureColor(g2, colors[0], colors[1], i, 1);
-                drawPolygon(g2, x1, x2, x3, x4, previousPoint.getYScreen(),
-                        currentPoint.getYScreen());
+                drawPolygon(g2, x1, x2, x3, x4, previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
                 
                setTextureColor(g2, colors[2], colors[3], i, 1);
-                drawPolygon(g2, 0, x1, x4, 0, previousPoint.getYScreen(),
-                        currentPoint.getYScreen());
+                drawPolygon(g2, 0, x1, x4, 0, previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
                 drawPolygon(g2, x2, screenWidth, screenWidth, x3,
-                        previousPoint.getYScreen(), currentPoint.getYScreen());
+                        previousPoint.getYWorld(), currentPoint.getYWorld());
                 
 
                 prevWidth = previousPoint.getXScale() * rumblestripWidth;
                 currWidth = currentPoint.getXScale() * rumblestripWidth;
                 setTextureColor(g2, Color.red, Color.white, i, 2);
                 drawPolygon(g2, Math.round(x1 - prevWidth), x1, x4, 
-                        Math.round(x4 - currWidth), previousPoint.getYScreen(),
-                        currentPoint.getYScreen());
+                        Math.round(x4 - currWidth), previousPoint.getYWorld(),
+                        currentPoint.getYWorld());
                 drawPolygon(g2, x2, Math.round(x2 + prevWidth),
                         Math.round(x3 + currWidth), x3,
-                        previousPoint.getYScreen(), currentPoint.getYScreen());
-                maxy = currentPoint.getYScreen();
+                        previousPoint.getYWorld(), currentPoint.getYWorld());
+                maxy = currentPoint.getYWorld();
             }   
             roadSegments.get(index).maxy = maxy;
             previousPoint = currentPoint;
