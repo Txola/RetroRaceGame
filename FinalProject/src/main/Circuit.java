@@ -99,7 +99,7 @@ public class Circuit {
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 32;
-        //addRoadSection(0, 15, 0, numberOfSegments, 0);
+        //addRoadSection(0, 0, 0, numberOfSegments, 0);
         addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
         addRoadSection(0, 3,  2 *unit, 1 * unit, unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
@@ -168,7 +168,7 @@ public class Circuit {
             offsetX += acumulator;
 
             roadSegments.get(index).offsetX1 = offsetX;
-            
+            roadSegments.get(index).maxy = maxy;
           
             currentPoint.projectPoint(camera, index < base ? roadLength : 0, offsetX,
                     offsetY, screenWidth / 2, screenHeight / 2);
@@ -204,7 +204,7 @@ public class Circuit {
                         previousPoint.getYWorld(), currentPoint.getYWorld());
                 maxy = currentPoint.getYWorld();
             }   
-            roadSegments.get(index).maxy = maxy;
+            
             previousPoint = currentPoint;
         }
     }   

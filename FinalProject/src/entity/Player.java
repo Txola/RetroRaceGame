@@ -69,8 +69,9 @@ public class Player extends Vehicle{
         point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
         float xScale = point.getXScale();
         float yScale = point.getYScale();
-        int imageWidth = (int) (image.getWidth() * scale * xScale);
-        int imageHeight = (int) (image.getHeight() * scale * yScale);
+        pointX = point.getXWorld();
+        imageWidth = (int) (image.getWidth() * scale * xScale);
+        imageHeight = (int) (image.getHeight() * scale * yScale);
         g2.drawImage(image, point.getXWorld() - imageWidth / 2, 
                 point.getYWorld() - imageHeight, imageWidth, imageHeight, null);
     }
