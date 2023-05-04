@@ -5,6 +5,8 @@
  */
 package main;
 import entity.Background;
+import entity.Entity;
+import entity.Image;
 import entity.Player;
 import entity.Vehicle;
 import java.awt.Color;
@@ -21,7 +23,7 @@ import javax.swing.JPanel;
  */
 public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
-    final int ROAD_WIDTH = 2200;
+    final int ROAD_WIDTH = 2500;
     final int RUMBLESTRIP_WIDTH = 400;
     final int NUMBER_OF_SEGMENTS = 500;
     final int SEGMENT_LENGTH = 250;
@@ -34,31 +36,35 @@ public class GamePanel extends JPanel implements Runnable{
     private Player player;
     private Background background;
     private Vehicle vehicle, vehicle2;
+    private List<Entity> sprites;
     private List<Vehicle> vehicles;
+    private final Image[] images = {
+        new Image("src/resources/car2.png", (float) 0.4, 1), //player car
+        new Image("src/resources/mercedes.png", 1, 1),
+        new Image("src/resources/subaruGris.png", (float) 2.3, 1),
+        new Image("src/resources/azul.png", (float) 0.65, 1),
+        new Image("src/resources/audi.png", (float) 0.55, 1),
+        new Image("src/resources/kia.png", (float) 0.7, 1)
+    };
     
     float x = 350;
     float y = 600;
     float speed = 160;
     
     private void loadVehicles() {
-        float maxSpeed = (float) (SEGMENT_LENGTH * 0.7 * FRAMES_PER_SECOND);
-        int numberOfCars = 45;
-        for (int i = 0; i < numberOfCars; i++) {
-            float z = Utils.uniform(0, circuit.getRoadLength());
+        final float maxSpeed = (float) (SEGMENT_LENGTH * 0.4 * FRAMES_PER_SECOND);
+        final int frequency = 15;
+        final int minimumSeparation = 3;
+        for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
+            float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
             float x = Utils.uniform(-ROAD_WIDTH + ROAD_WIDTH / 5, ROAD_WIDTH - ROAD_WIDTH / 5);
-            vehicles.add(new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, "src/resources/player_straight.png", 12, circuit));
+            Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, images[(int) Utils.uniform(1, 6)]);
+            vehicles.add(vehicle);
+            sprites.add((Entity) vehicle);
         }
-        /*vehicles.add(new Vehicle(new Coordinate3D(0, 0, 60000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(ROAD_WIDTH / 2, 0, 45000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(0, 0, 30000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(ROAD_WIDTH / 2, 0, 24000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(0, 0, 20000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(-ROAD_WIDTH / 2, 0, 12000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(0, 0, 8000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(ROAD_WIDTH / 2, 0, 4000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(-ROAD_WIDTH / 2, 0, 1000), maxSpeed, "src/resources/player_straight.png", 12, circuit));
-        vehicles.add(new Vehicle(new Coordinate3D(0, 0, 2000), maxSpeed, "src/resources/player_straight.png", 12, circuit));*/
-        
+        for (Vehicle vehicle : vehicles) {
+            vehicle.setSpeed(maxSpeed * Utils.uniform((float) 0.5, 1));
+        }
     }
     
     public GamePanel() {
@@ -68,11 +74,17 @@ public class GamePanel extends JPanel implements Runnable{
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
-        player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.7 * FRAMES_PER_SECOND), "src/resources/boceto.png", 25, keyInput, circuit);
+        player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, images[0]);
         background = new Background();
+        sprites = new ArrayList<>();
         vehicles = new ArrayList<>();
         loadVehicles();
-        
+        circuit.addSprites(sprites);
+        System.out.println(sprites.size());
+        sprites.add(player);
+                System.out.println(sprites.size());
+
+
     }
     
     @Override
@@ -83,11 +95,9 @@ public class GamePanel extends JPanel implements Runnable{
         g2.fillRect(0, 0, getWidth(), getHeight());
         //background.draw(g2);
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
-        synchronized(vehicles) {
-            vehicles.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
+        synchronized(sprites) {
+            sprites.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
         }
-        player.draw(g2, getWidth(), getHeight(), camera);
-        //vehicle2.draw(g2, getWidth(), getHeight(), camera);
         g2.dispose();
     }
 
@@ -133,7 +143,6 @@ public class GamePanel extends JPanel implements Runnable{
     }
     
     private void update(double dt) {
-        
         if (keyInput.plus) {
             camera.updateHeight(30);
         }
@@ -141,14 +150,20 @@ public class GamePanel extends JPanel implements Runnable{
             camera.updateHeight(-30);
         }
         Segment s = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
-        player.updateX(s.getCurve());
+        
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
-        synchronized(vehicles) {
-            vehicles.forEach(vehicle-> vehicle.update(dt,6));
+        player.updateX(s.getCurve(), dx);
+        synchronized(sprites) {
+            for (Vehicle vehicle : vehicles) {
+                vehicle.update(dt, vehicles, player);
+            }
+        }
+        synchronized(sprites) {
+            sprites.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
         }
         synchronized(vehicles) {
-            vehicles.sort((v2, v1)-> Float.compare(v1.looped ? v1.getPosition().z + circuit.getRoadWidth() : v1.getPosition().z, v2.looped ? v2.getPosition().z + circuit.getRoadWidth() : v2.getPosition().z));   
+            vehicles.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
         }
         
         camera.update(player.getPosition());
@@ -156,16 +171,17 @@ public class GamePanel extends JPanel implements Runnable{
             camera.restart();
             player.restart();
         }
-        for (Vehicle vehicle : vehicles) {
-            Segment vehicleSegment = circuit.getCurrentSegment(vehicle.position.z % circuit.getRoadLength());
+        
+        for (Entity sprite : sprites) {
+            Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z % circuit.getRoadLength());
                 if (vehicleSegment == s) {
 
-                    if (Utils.overlap(player.pointX, player.imageWidth, vehicle.pointX, vehicle.imageWidth)) {
-                        if (vehicle.getSpeed() < player.getSpeed())
-                            player.setSpeed(0);
-                        else
-                            vehicle.setSpeed(0);
-                        System.out.println("COLISION");
+                    if ((!(sprite instanceof Vehicle) || player.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(player.getPointX(), player.getImageWidth() * player.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
+                        player.setSpeed(0);
+                        if (!(sprite instanceof Vehicle))
+                            player.colidedWithSprite = true;
+                        
+                        //System.out.println("COLISION");
                 }
             }
         }

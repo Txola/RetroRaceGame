@@ -5,6 +5,8 @@
  */
 package main;
 
+import entity.Entity;
+import entity.Image;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
@@ -20,7 +22,7 @@ public class Circuit {
     private int rumblestripWidth;
     private int segmentLenght;
     private int numberOfSegments;
-    final int numberOfVisibleSegments;
+    private final int numberOfVisibleSegments;
     private List<Segment> roadSegments;
     final Color[] colors = {
         new Color(90, 90, 100), //Road 1
@@ -96,18 +98,26 @@ public class Circuit {
     
 //</editor-fold>
     
+    public void addSprites(List<Entity> sprites) {
+        Image image = new Image("src/resources/Tree.png", 10, (float) 0.1);
+        for (int i = 1; i <= 50; i++) {
+            sprites.add(new Entity(new Coordinate3D(roadWidth + 4 * rumblestripWidth, 0, i * 2400), this, image));
+            sprites.add(new Entity(new Coordinate3D(-(roadWidth + 4 * rumblestripWidth), 0, i * 2400), this, image));
+        }
+
+    }
+    
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 32;
         //addRoadSection(0, 0, 0, numberOfSegments, 0);
         addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
-        addRoadSection(0, 3,  2 *unit, 1 * unit, unit);
+        addRoadSection(0, 5,  2 *unit, 9 * unit, 2*unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
         addRoadSection(7000, 0, 2 * unit, unit, unit);
         addRoadSection(3000, 0, 3 * unit, 0, 0);
         addRoadSection(3000, 0, 2 * unit, 0, 0);
         addRoadSection(0, -15, 2 * unit, 2 *unit, unit);
-        addRoadSection(0, -2, unit, 3 * unit, unit);
         addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);
     }
     
