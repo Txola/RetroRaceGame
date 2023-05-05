@@ -3,24 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/entity/Player.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/Point.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/Arbol.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/GamePanel.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/Utils.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/Tree.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/Car.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/car1.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/city.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/entity/Background.java</file>
             <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/entity/Entity.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/car2.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/KeyInputHandler.java</file>
             <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/entity/Vehicle.java</file>
             <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/Circuit.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/car.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/Camera.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/entity/Image.java</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/azul.png</file>
-            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/arbol1.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/city_2.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/GamePanel.java</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/clouds.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/main/Segment.java</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/city.png</file>
+            <file>file:/home/txola/NetBeansProjects/RaceGame3d1/FinalProject/src/resources/background.png</file>
         </group>
     </open-files>
 </project-private>

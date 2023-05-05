@@ -25,7 +25,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
     final int ROAD_WIDTH = 2500;
     final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 500;
+    final int NUMBER_OF_SEGMENTS = 800;
     final int SEGMENT_LENGTH = 250;
     
     
@@ -34,7 +34,8 @@ public class GamePanel extends JPanel implements Runnable{
     private Circuit circuit;
     private Camera camera;
     private Player player;
-    private Background background;
+    private Background backgroundCity, backgroundSky;
+    private Segment lastSegment;
     private Vehicle vehicle, vehicle2;
     private List<Entity> sprites;
     private List<Vehicle> vehicles;
@@ -75,7 +76,8 @@ public class GamePanel extends JPanel implements Runnable{
         addKeyListener(keyInput);
         setFocusable(true);
         player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, images[0]);
-        background = new Background();
+        backgroundCity = new Background("src/resources/city_2.png", 100);
+        backgroundSky = new Background("src/resources/clouds.png", 0);
         sprites = new ArrayList<>();
         vehicles = new ArrayList<>();
         loadVehicles();
@@ -83,6 +85,7 @@ public class GamePanel extends JPanel implements Runnable{
         System.out.println(sprites.size());
         sprites.add(player);
                 System.out.println(sprites.size());
+        lastSegment = circuit.getCurrentSegment(0);
 
 
     }
@@ -93,7 +96,9 @@ public class GamePanel extends JPanel implements Runnable{
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(new Color(21,205,212));
         g2.fillRect(0, 0, getWidth(), getHeight());
-        //background.draw(g2);
+        backgroundSky.draw(g2, getWidth(), getHeight());
+        backgroundCity.draw(g2, getWidth(), getHeight());
+        
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
         synchronized(sprites) {
             sprites.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
@@ -149,8 +154,18 @@ public class GamePanel extends JPanel implements Runnable{
         if (keyInput.minus) {
             camera.updateHeight(-30);
         }
-        Segment s = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
         
+        
+        Segment s = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
+        final float prop = (float) 1;
+        final float prop2 = (float) 2.5;
+        if (!lastSegment.equals(s)) {
+           backgroundCity.updateImageOffset((int) (float) (-s.getCurve()*prop));
+           backgroundSky.updateImageOffset((int) (float) (-s.getCurve()/prop2));
+        }
+        
+        backgroundCity.updateOffset((int) (-s.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())*prop));
+        backgroundSky.updateOffset((int) (-s.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
         float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
         player.updateX(s.getCurve(), dx);
@@ -186,8 +201,9 @@ public class GamePanel extends JPanel implements Runnable{
             }
         }
         //System.out.println(player.imageWidth + ", "+ player.imageHeight);
-        
+        lastSegment = s;
     }
+    
     
 }
 /*

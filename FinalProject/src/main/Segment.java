@@ -58,6 +58,9 @@ public class Segment {
         //System.out.println("-------\n" + offsetX1 + ", " + offsetX2 + "\n ------");
         return offsetX1 + getSegmentPercent(z) * (offsetX2 - offsetX1);
     }
-
+    
+    public float getCurveAmount(float z) {
+        return curve * getSegmentPercent(z);
+    }
     
 }

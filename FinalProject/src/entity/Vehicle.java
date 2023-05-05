@@ -112,7 +112,6 @@ public class Vehicle extends Entity {
                 else step *= 2;*/
                 float percent = (1 - getDistanceToVehicleInFront(otherVehicle)) / reactionSegments * getCircuit().getSegmentLenght();
                 float vel = (float) Utils.easeInOut(0, 3000, percent);
-                System.out.println(vel);
                 this.getPosition().x += direction * vel * dt;
             }
         }

@@ -100,7 +100,7 @@ public class Circuit {
     
     public void addSprites(List<Entity> sprites) {
         Image image = new Image("src/resources/Tree.png", 10, (float) 0.1);
-        for (int i = 1; i <= 50; i++) {
+        for (int i = 1; i <= 80; i++) {
             sprites.add(new Entity(new Coordinate3D(roadWidth + 4 * rumblestripWidth, 0, i * 2400), this, image));
             sprites.add(new Entity(new Coordinate3D(-(roadWidth + 4 * rumblestripWidth), 0, i * 2400), this, image));
         }
@@ -109,15 +109,24 @@ public class Circuit {
     
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
-        final int unit = numberOfSegments / 32;
+        final int unit = numberOfSegments / 64;
         //addRoadSection(0, 0, 0, numberOfSegments, 0);
-        addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
+        /*addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
         addRoadSection(0, 5,  2 *unit, 9 * unit, 2*unit);
         addRoadSection(0, 0, 2 * unit, 0, 0);
         addRoadSection(7000, 0, 2 * unit, unit, unit);
         addRoadSection(3000, 0, 3 * unit, 0, 0);
         addRoadSection(3000, 0, 2 * unit, 0, 0);
-        addRoadSection(0, -15, 2 * unit, 2 *unit, unit);
+        addRoadSection(0, -8, 2 * unit, 2 *unit, unit);
+        addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);*/
+        addRoadSection(7000, 0, 2*unit, 2 * unit, 2*unit);
+        addRoadSection(0, 5,  2 *unit, 9 * unit, 2*unit);
+        addRoadSection(0, 0, 4 * unit, 0, 0);
+        addRoadSection(0, -8, 2 * unit, 3*unit, 2*unit);
+        addRoadSection(7000, 0, 2 * unit, unit, 3*unit);
+        addRoadSection(0, -5,  2 *unit, 9 * unit, 2*unit);
+        addRoadSection(3000, 0, 4 * unit, 0, 0);
+        addRoadSection(3000, 8, 2 * unit, 3*unit, 2*unit); //60 units        
         addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);
     }
     
@@ -158,6 +167,10 @@ public class Circuit {
         return roadSegments.isEmpty() ? 0 :
                 roadSegments.get(roadSegments.size() - 1).getPoint2().y;
     }
+    /*public float getPreviousSegmentCurve(Segment segment) {
+    int index = roadSegments.indexOf(segment);
+    return index > 0 ? roadSegments.get(index - 1).getCurve() : roadSegments.get(roadSegments.size() - 1).getCurve();
+    }*/
     
     public void renderCircuit(Graphics2D g2, Camera camera, int screenWidth, int screenHeight) {
         
