@@ -53,9 +53,15 @@ public class Player extends Vehicle{
             speed = maxSpeed;
         }
         getPosition().z += speed * dt;
+        if (Math.abs(getPosition().x) > getCircuit().getRoadWidth()) {
+            System.out.println("kalsdjfasjdfkñlasjdfasklñ");
+            speed -= (speed / getMaxSpeed()) * 100;
+            if (speed < 0) speed = 0;
+        }
         
         if (colidedWithSprite)
             colidedWithSprite = false;
+        
         
     }
     

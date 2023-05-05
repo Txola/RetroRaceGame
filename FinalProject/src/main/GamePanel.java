@@ -192,10 +192,13 @@ public class GamePanel extends JPanel implements Runnable{
                 if (vehicleSegment == s) {
 
                     if ((!(sprite instanceof Vehicle) || player.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(player.getPointX(), player.getImageWidth() * player.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
-                        player.setSpeed(0);
-                        if (!(sprite instanceof Vehicle))
+                        if (!(sprite instanceof Vehicle)) {
                             player.colidedWithSprite = true;
-                        
+                            player.setSpeed(0);
+                        }
+                        else
+                            
+                            player.setSpeed(((Vehicle) sprite).getSpeed()/6);
                         //System.out.println("COLISION");
                 }
             }
