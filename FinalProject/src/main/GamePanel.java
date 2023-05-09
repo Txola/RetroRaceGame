@@ -45,7 +45,8 @@ public class GamePanel extends JPanel implements Runnable{
         new Image("src/resources/subaruGris.png", (float) 2.3, 1),
         new Image("src/resources/azul.png", (float) 0.65, 1),
         new Image("src/resources/audi.png", (float) 0.55, 1),
-        new Image("src/resources/kia.png", (float) 0.7, 1)
+        new Image("src/resources/kia.png", (float) 0.7, 1),
+        new Image("src/resources/escarabajo.png", (float) 1.25, 1)
     };
     
     float x = 350;
@@ -59,7 +60,7 @@ public class GamePanel extends JPanel implements Runnable{
         for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
             float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
             float x = Utils.uniform(-ROAD_WIDTH + ROAD_WIDTH / 5, ROAD_WIDTH - ROAD_WIDTH / 5);
-            Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, images[(int) Utils.uniform(1, 6)]);
+            Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, images[(int) Utils.uniform(1, 7)]);
             vehicles.add(vehicle);
             sprites.add((Entity) vehicle);
         }

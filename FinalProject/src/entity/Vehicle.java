@@ -60,27 +60,29 @@ public class Vehicle extends Entity {
         return vehicle.getPosition().z - this.getPosition().z;
     }
     
+    private void avoidVehicle(Vehicle vehicle, float reactionDistance, double dt) {
+        int direction;
+        if (vehicle.getPosition().x > circuit.getRoadWidth() / 2.5)
+            direction = -1;
+        else if (vehicle.getPosition().x < -circuit.getRoadWidth() / 2.5)
+            direction = 1;
+        else
+            direction = vehicle.getPosition().x > this.getPosition().x ? -1 : 1;
+
+        float percent = (reactionDistance - getDistanceToVehicleInFront(vehicle)) / reactionDistance;
+        //System.out.println(percent);
+        float vel = (float) Utils.easeInOut(0, 12000, percent) * ((speed - vehicle.getSpeed()) / maxSpeed);
+        this.getPosition().x += direction * vel * dt;
+    }
+    
     public void update(double dt, List<Vehicle> vehicles, Player player) {
         getPosition().z  += dt * speed;
-        final int reactionSegments = 15;
+        final int reactionDistance = 15 * getCircuit().getSegmentLenght();
         int vehicleIndex = vehicles.indexOf(this);
         
         
-        if (getDistanceToVehicleInFront(player) < reactionSegments * getCircuit().getSegmentLenght() && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) player.getPointX(), (float) (player.getImageWidth() * 1.1))) {
-            int direction;
-                if (player.getPosition().x > circuit.getRoadWidth() / 2.5)
-                    direction = -1;
-                else if (player.getPosition().x < -circuit.getRoadWidth() / 2.5)
-                    direction = 1;
-                else
-                    direction = player.getPosition().x > this.getPosition().x ? -1 : 1;
-                float step = (getDistanceToVehicleInFront(player) / getCircuit().getSegmentLenght());
-                /*if (step > 4) step = 1;
-                else step *= 2;*/
-                float percent = (1 - getDistanceToVehicleInFront(player)) / reactionSegments * getCircuit().getSegmentLenght();
-                float vel = (float) Utils.easeInOut(0, 3000, percent);
-                System.out.println(vel);
-                this.getPosition().x += direction * vel * dt;
+        if (getDistanceToVehicleInFront(player) < reactionDistance && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) player.getPointX(), (float) (player.getImageWidth() * 1.1))) {
+            avoidVehicle(player, reactionDistance, dt);
         }
         
         
@@ -89,7 +91,7 @@ public class Vehicle extends Entity {
             //System.out.println(vehicles.get(vehicleIndex).getPosition().z + ", " + vehicles.get(otherVehicleIndex).getPosition().z);
             Vehicle otherVehicle = vehicles.get(otherVehicleIndex);
             //getDistanceToNextVehicle(otherVehicle) > reactionSegments * getCircuit().getSegmentLenght() || 
-            while (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionSegments * getCircuit().getSegmentLenght() && !Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) otherVehicle.getPointX(), (float) (otherVehicle.getImageWidth() * 1.1))) {
+            while (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && !Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) otherVehicle.getPointX(), (float) (otherVehicle.getImageWidth() * 1.1))) {
                 otherVehicle = vehicles.get(otherVehicleIndex - 1);
                 otherVehicleIndex--;
             }
@@ -97,29 +99,16 @@ public class Vehicle extends Entity {
             
             
             //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
-            if (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionSegments * getCircuit().getSegmentLenght() && otherVehicle.getSpeed() < this.getSpeed()) {
+            if (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && otherVehicle.getSpeed() < this.getSpeed()) {
                 //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
-                
-                int direction;
-                if (otherVehicle.getPosition().x > circuit.getRoadWidth() / 2.5)
-                    direction = -1;
-                else if (otherVehicle.getPosition().x < -circuit.getRoadWidth() / 2.5)
-                    direction = 1;
-                else
-                    direction = otherVehicle.getPosition().x > this.getPosition().x ? -1 : 1;
-                float step = (getDistanceToVehicleInFront(otherVehicle) / getCircuit().getSegmentLenght());
-                /*if (step > 4) step = 1;
-                else step *= 2;*/
-                float percent = (1 - getDistanceToVehicleInFront(otherVehicle)) / reactionSegments * getCircuit().getSegmentLenght();
-                float vel = (float) Utils.easeInOut(0, 3000, percent);
-                this.getPosition().x += direction * vel * dt;
+                avoidVehicle(otherVehicle, reactionDistance, dt);
             }
         }
         if (this.getPosition().x > getCircuit().getRoadWidth() - getCircuit().getRoadWidth() / 6) {
-        this.getPosition().x -= (getCircuit().getRoadWidth() / 40);
+        this.getPosition().x -= (getCircuit().getRoadWidth() / 20);
         }
         if (this.getPosition().x < -getCircuit().getRoadWidth() + getCircuit().getRoadWidth() / 6) {
-        this.getPosition().x += (getCircuit().getRoadWidth() / 40);
+        this.getPosition().x += (getCircuit().getRoadWidth() / 20);
         }
     }
     
