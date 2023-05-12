@@ -4,31 +4,41 @@
  * and open the template in the editor.
  */
 package main;
+import Gui.PauseMenuDialog;
 import entity.Background;
 import entity.Entity;
 import entity.Image;
 import entity.Player;
 import entity.Vehicle;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 /**
  *
  * @author txola
  */
 public class GamePanel extends JPanel implements Runnable{
     final int FRAMES_PER_SECOND = 60;
-    final int ROAD_WIDTH = 2500;
+    int roadWidth = 2500;
     final int RUMBLESTRIP_WIDTH = 400;
     final int NUMBER_OF_SEGMENTS = 800;
     final int SEGMENT_LENGTH = 250;
-    
-    
+    private GameFrame gameFrame;
+    private boolean pause = true;
     private Thread gameThread;
     private KeyInputHandler keyInput;
     private Circuit circuit;
@@ -48,18 +58,36 @@ public class GamePanel extends JPanel implements Runnable{
         new Image("src/resources/kia.png", (float) 0.7, 1),
         new Image("src/resources/escarabajo.png", (float) 1.25, 1)
     };
+
+    public Camera getCamera() {
+        return camera;
+    }
+
+    public void updateRoadWidth(int roadWidth) {
+        int dRoadWidth = roadWidth - this.roadWidth;
+        this.roadWidth = roadWidth;
+        circuit.setRoadWidth(roadWidth);
+        synchronized (sprites) {
+            for (Entity sprite : sprites)  {
+                if (!(sprite instanceof Vehicle)) {
+                    sprite.getPosition().x += sprite.getPosition().x > 0 ? dRoadWidth : -dRoadWidth;
+                }
+            }
+        }
+    }
     
-    float x = 350;
-    float y = 600;
-    float speed = 160;
     
+    public void pauseOrResume() {
+        pause = false;
+        System.out.println("pause" + pause);
+    }
     private void loadVehicles() {
         final float maxSpeed = (float) (SEGMENT_LENGTH * 0.4 * FRAMES_PER_SECOND);
         final int frequency = 15;
         final int minimumSeparation = 3;
         for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
             float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
-            float x = Utils.uniform(-ROAD_WIDTH + ROAD_WIDTH / 5, ROAD_WIDTH - ROAD_WIDTH / 5);
+            float x = Utils.uniform(-roadWidth + roadWidth / 5, roadWidth - roadWidth / 5);
             Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, images[(int) Utils.uniform(1, 7)]);
             vehicles.add(vehicle);
             sprites.add((Entity) vehicle);
@@ -69,13 +97,44 @@ public class GamePanel extends JPanel implements Runnable{
         }
     }
     
-    public GamePanel() {
-        setBackground(Color.WHITE); //QUITAR LUEGO
-        circuit = new Circuit(ROAD_WIDTH, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS, 300);
-        camera = new Camera();
+    private void initPauseDialog() {
+        PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
+        pauseDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+        pauseDialog.setLocationRelativeTo(this);
+        pauseDialog.setVisible(true);
+    }
+    
+    public GamePanel(GameFrame gameFrame) {
+        this.gameFrame = gameFrame;
+        setLayout(new FlowLayout(FlowLayout.RIGHT, 15, 15));
+        JButton settingsButton = new JButton();
+        
+        settingsButton.setPreferredSize(new Dimension(120, 40));
+        settingsButton.setBackground(new Color(141, 141, 141));
+        settingsButton.setIcon(new ImageIcon(getClass().getResource("/resources/pause2.png")));
+        settingsButton.setText("Pause");
+        settingsButton.setFocusPainted(false);
+        settingsButton.setFocusable(false);
+        settingsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pause = true;
+                initPauseDialog();
+            }
+        });
+        add(settingsButton);
+        
+        
+        
+        /*panel.add(settingsButton, BorderLayout.CENTER);
+        panel.setOpaque(false);
+        add(panel, BorderLayout.NORTH);*/
+        
         keyInput = new KeyInputHandler();
         addKeyListener(keyInput);
         setFocusable(true);
+        requestFocus();
+        circuit = new Circuit(roadWidth, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS, 450);
+        camera = new Camera();
         player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, images[0]);
         backgroundCity = new Background("src/resources/city_2.png", 100);
         backgroundSky = new Background("src/resources/clouds.png", 0);
@@ -97,6 +156,8 @@ public class GamePanel extends JPanel implements Runnable{
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(new Color(21,205,212));
         g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.setColor(new Color(0,0,0));
+        g2.fillRect(0, getHeight()/2, getWidth(), getHeight());
         backgroundSky.draw(g2, getWidth(), getHeight());
         backgroundCity.draw(g2, getWidth(), getHeight());
         
@@ -104,8 +165,11 @@ public class GamePanel extends JPanel implements Runnable{
         synchronized(sprites) {
             sprites.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
         }
+        super.paintChildren(g);
         g2.dispose();
     }
+    
+
 
     @Override
     public void addNotify() {
@@ -125,38 +189,35 @@ public class GamePanel extends JPanel implements Runnable{
         long frameCounter = 0;
         long countStartTime = System.nanoTime();
 
-        while (true) {    
-            long currentTime = System.nanoTime();
-            deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
-            
-            lastUpdateTime = currentTime;
-            
-            if (deltaTime >= 1) {
-                frameCounter++;
-                //LOGIC HERE-------
-                update(deltaT);
-                repaint();
-                //--------------
-                deltaTime--;
-            }
-            if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
-                System.out.println("FPS: " + frameCounter);
-                countStartTime = System.nanoTime();
-                frameCounter = 0;
+        while (true) {
+
+                long currentTime = System.nanoTime();
+                deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
+
+                lastUpdateTime = currentTime;
+
+                if (deltaTime >= 1) {
+                    frameCounter++;
+                    //LOGIC HERE-------
+                    repaint();
+                    if (!pause) {
+                        update(deltaT);
                         
+                    }
+                    //--------------
+                    deltaTime--;
+                }
+                if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
+                    System.out.println("FPS: " + frameCounter);
+                    countStartTime = System.nanoTime();
+                    frameCounter = 0;
+
             }
         }
     }
     
     private void update(double dt) {
-        if (keyInput.plus) {
-            camera.updateHeight(30);
-        }
-        if (keyInput.minus) {
-            camera.updateHeight(-30);
-        }
-        
-        
+
         Segment s = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
         final float prop = (float) 1;
         final float prop2 = (float) 2.5;
@@ -167,7 +228,7 @@ public class GamePanel extends JPanel implements Runnable{
         
         backgroundCity.updateOffset((int) (-s.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())*prop));
         backgroundSky.updateOffset((int) (-s.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
-        float dx = ROAD_WIDTH / (1 * FRAMES_PER_SECOND);
+        float dx = roadWidth / (1 * FRAMES_PER_SECOND);
         player.update(dt, dx);
         player.updateX(s.getCurve(), dx);
         synchronized(sprites) {

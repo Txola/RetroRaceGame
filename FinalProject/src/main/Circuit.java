@@ -107,6 +107,8 @@ public class Circuit {
 
     }
     
+    
+    
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
         final int unit = numberOfSegments / 64;

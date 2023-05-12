@@ -16,8 +16,8 @@ public class Camera {
 
     public Camera() {
         position = new Coordinate3D(0, 1200, -1000);
-        distanceToPlane = -position.z / position.y;
         distanceToPlayer = -position.z;
+        distanceToPlane = distanceToPlayer / position.y;
     }
     public void increase(int dz) {
         position.z += dz;
@@ -26,13 +26,28 @@ public class Camera {
         position.x += dx;
     }
     
-    public void updateHeight(float dy) {
-        position.y += dy;
+    public void updateHeight(float y) {
+        System.out.println(position.y);
+        float dy = y - position.y;
+        position.y = y;
         float dz = (position.y * distanceToPlayer) / (position.y - dy) - distanceToPlayer;
         updateDepth(dz);
     }
     
-    public void updateDepth(float dz) {
+    public void updateFieldOfView(float z) {
+        float dz = z - distanceToPlayer;
+        position.z -= dz;
+        distanceToPlayer += dz;
+        distanceToPlane = distanceToPlayer / position.y;
+    }
+    
+    public void updateDistanceToPlayer(float z) {
+        float dz = z - distanceToPlayer;
+        position.z -= dz;
+        distanceToPlayer += dz;
+    }
+    
+    private void updateDepth(float dz) {
         distanceToPlayer += dz;
         position.z -=dz;
     }
