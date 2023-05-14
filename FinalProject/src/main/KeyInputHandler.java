@@ -12,7 +12,7 @@ import java.awt.event.KeyListener;
  *
  * @author txola
  */
-public class KeyInputHandler implements KeyListener{
+public class KeyInputHandler {
     public Boolean up, down, right, left, plus, minus;
 
     public KeyInputHandler() {
@@ -22,15 +22,7 @@ public class KeyInputHandler implements KeyListener{
         this.left = false;
     }
     
-    
-    @Override
-    public void keyTyped(KeyEvent evt) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent evt) {
-        int key = evt.getKeyCode();
-        
+    public void updateKeyPressed(int key) {
         switch(key) {
             case KeyEvent.VK_UP:
                 up = true;
@@ -46,11 +38,8 @@ public class KeyInputHandler implements KeyListener{
                 break;
         }
     }
-
-    @Override
-    public void keyReleased(KeyEvent evt) {
-        int key = evt.getKeyCode();
-        
+    
+    public void updateKeyReleased(int key) {
         switch(key) {
             case KeyEvent.VK_UP:
                 up = false;
@@ -66,5 +55,5 @@ public class KeyInputHandler implements KeyListener{
                 break;
         }
     }
-    
+      
 }
