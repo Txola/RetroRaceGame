@@ -73,16 +73,16 @@ public class Player extends Vehicle{
             getPosition().x += inc;
     }
     
-    @Override
+    /*@Override
     public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
-        Point point = new Point(getPosition());
-        point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
-        float xScale = point.getXScale();
-        float yScale = point.getYScale();
-        setPointX(point.getXWorld());
-        setImageWidth((int) (getImage().getBufferedImage().getWidth() * getImage().getScale() * xScale));
-        setImageHeight((int) (getImage().getBufferedImage().getHeight() * getImage().getScale() * yScale));
-        g2.drawImage(getImage().getBufferedImage(), point.getXWorld() - getImageWidth() / 2, 
-                point.getYWorld() - getImageHeight(), getImageWidth(), getImageHeight(), null);
-    }
+    Point point = new Point(getPosition());
+    point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
+    float xScale = point.getXScale();
+    float yScale = point.getYScale();
+    setPointX(point.getXWorld());
+    setImageWidth((int) (getImage().getBufferedImage().getWidth() * getImage().getScale() * xScale));
+    setImageHeight((int) (getImage().getBufferedImage().getHeight() * getImage().getScale() * yScale));
+    g2.drawImage(getImage().getBufferedImage(), point.getXWorld() - getImageWidth() / 2,
+    point.getYWorld() - getImageHeight(), getImageWidth(), getImageHeight(), null);
+    }*/
 }

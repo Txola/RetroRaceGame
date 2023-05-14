@@ -119,6 +119,11 @@ public class Vehicle extends Entity {
         }
         super.draw(g2, screenWidth, screenHeight, camera);
     }
+    
+    @Override
+    public String toString() {
+        return (super.toString() + " " + maxSpeed + " " + speed);
+    }
 }
 
   

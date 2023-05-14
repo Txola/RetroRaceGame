@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -22,7 +23,7 @@ import main.Segment;
  *
  * @author txola
  */
-public class Entity {
+public class Entity implements Serializable{
     Circuit circuit;
     private Coordinate3D position;
     private Image image;
@@ -130,5 +131,10 @@ public class Entity {
                         d2y, 0, 0, image.getBufferedImage().getWidth(), s2y, null);
             }
         }
+    }
+    
+    @Override
+    public String toString() {
+       return (ResourceManager.instance().getIndexOf(image) + " " + position.x + " " + position.y + " " + position.z); 
     }
 }
