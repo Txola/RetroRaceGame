@@ -234,11 +234,14 @@ public class MultiplayerDialog extends javax.swing.JDialog {
 
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
         // TODO add your handling code here:
+        gameFrame.startGame(new GamePanel(gameFrame, true, false));
+        System.out.println(nombreHost.getText());
+        dispose();
     }//GEN-LAST:event_joinButtonActionPerformed
 
     private void hostConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostConfirmButtonActionPerformed
         // TODO add your handling code here:
-        gameFrame.startGame(new GamePanel(gameFrame));
+        gameFrame.startGame(new GamePanel(gameFrame, true, true));
         System.out.println(nombreHost.getText());
         dispose();
     }//GEN-LAST:event_hostConfirmButtonActionPerformed

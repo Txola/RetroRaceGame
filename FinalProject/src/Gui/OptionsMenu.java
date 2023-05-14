@@ -132,10 +132,14 @@ public class OptionsMenu extends javax.swing.JPanel {
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         // TODO add your handling code here:
         pauseMenuDialog.getGamePanel().getCamera().updateHeight(jSlider1.getValue());
+        
     }//GEN-LAST:event_jSlider1StateChanged
 
     private void jSlider2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider2StateChanged
         // TODO add your handling code here:
+        /*jSlider2.setMinimum(0);
+        jSlider2.setMaximum(WIDTH);
+        jSlider2.setValue((int) pauseMenuDialog.getGamePanel().getCamera().getDistanceToPlayer());*/
         pauseMenuDialog.getGamePanel().getCamera().updateFieldOfView(jSlider2.getValue());
     }//GEN-LAST:event_jSlider2StateChanged
 
