@@ -7,6 +7,7 @@ package main;
 
 import entity.Entity;
 import entity.Image;
+import entity.ResourceManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
@@ -99,7 +100,7 @@ public class Circuit {
 //</editor-fold>
     
     public void addSprites(List<Entity> sprites) {
-        Image image = new Image("src/resources/Tree.png", 10, (float) 0.1);
+        Image image = ResourceManager.instance().get(7);
         for (int i = 1; i <= 80; i++) {
             sprites.add(new Entity(new Coordinate3D(roadWidth + 4 * rumblestripWidth, 0, i * 2400), this, image));
             sprites.add(new Entity(new Coordinate3D(-(roadWidth + 4 * rumblestripWidth), 0, i * 2400), this, image));
