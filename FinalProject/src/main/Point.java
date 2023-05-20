@@ -11,7 +11,7 @@ package main;
  */
 public class Point {
     private Coordinate3D worldPosition;
-    private int xWorld, yWorld;
+    private float xWorld, yWorld;
     private float xScale, yScale;
     
 
@@ -19,11 +19,11 @@ public class Point {
         this.worldPosition = worldPosition;
     }
 
-    public int getXWorld() {
+    public float getXWorld() {
         return xWorld;
     }
 
-    public int getYWorld() {
+    public float getYWorld() {
         return yWorld;
     }
 

@@ -10,8 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import main.Camera;
 import main.Coordinate3D;
-import main.KeyInputHandler;
 import main.Circuit;
+import main.KeyInputStatus;
 import main.Point;
 import main.Segment;
 
@@ -20,15 +20,22 @@ import main.Segment;
  * @author txola
  */
 public class Player extends Vehicle{
-    KeyInputHandler input;
+    KeyInputStatus input;
     public boolean colidedWithSprite;
 
-    public Player(Coordinate3D position, float maxSpeed, KeyInputHandler input, Circuit circuit, Image image) {
+    public Player(Coordinate3D position, float maxSpeed, KeyInputStatus input, Circuit circuit, Image image) {
         super(position, maxSpeed, circuit, image);
         this.input = input;
         speed = 0;
     }
     
+    public void updateState(String state) {
+        String[] parts = state.split(" ");
+        getPosition().x = Float.parseFloat(parts[1]);
+        getPosition().y = Float.parseFloat(parts[2]);
+        getPosition().z = Float.parseFloat(parts[3]);
+        speed = Float.parseFloat(parts[5]);
+    }
     
     
     public void update(double dt, float dx) {

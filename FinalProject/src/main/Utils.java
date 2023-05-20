@@ -18,11 +18,11 @@ public class Utils {
         return (float) (Math.random() * (max-min) + min);
     }
     
-    static public boolean overlap(int position1, float width1, int position2, float width2) {
-        float min1 = position1 - width1/2;
-        float max1 = position1 + width1/2;
-        float min2 = position2 - width2/2;
-        float max2 = position2 + width2/2;
+    static public boolean overlap(double position1, double width1, double position2, double width2) {
+        double min1 = position1 - width1/2;
+        double max1 = position1 + width1/2;
+        double min2 = position2 - width2/2;
+        double max2 = position2 + width2/2;
         return !(max1 < min2 || max2 < min1);
     }
 }

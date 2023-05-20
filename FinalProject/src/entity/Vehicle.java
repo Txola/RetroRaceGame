@@ -75,29 +75,36 @@ public class Vehicle extends Entity {
         this.getPosition().x += direction * vel * dt;
     }
     
+    private void avoidPlayer(Player player, float reactionDistance, double dt) {
+        if (getDistanceToVehicleInFront(player) < reactionDistance && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap(this.getPointX(), this.getImageWidth() * 1.1, player.getPointX(), player.getImageWidth() * 1.1)) {
+            avoidVehicle(player, reactionDistance, dt);
+        }
+    }
+    
+    
+    
     public void update(double dt, List<Vehicle> vehicles, Player player) {
         getPosition().z  += dt * speed;
         final int reactionDistance = 15 * getCircuit().getSegmentLenght();
         int vehicleIndex = vehicles.indexOf(this);
         
+            //avoidPlayer(player, reactionDistance, dt);
+        /*if (getDistanceToVehicleInFront(oponent) < reactionDistance && getDistanceToVehicleInFront(oponent) > 0 && oponent.getSpeed() < this.getSpeed() && Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) oponent.getPointX(), (float) (oponent.getImageWidth() * 1.1))) {
+        avoidVehicle(oponent, reactionDistance, dt);
+        }*/
         
-        if (getDistanceToVehicleInFront(player) < reactionDistance && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) player.getPointX(), (float) (player.getImageWidth() * 1.1))) {
-            avoidVehicle(player, reactionDistance, dt);
-        }
-        
-        
-        if (vehicleIndex > 0) { //TODO : only when segments are visible
+        if (vehicleIndex > 0) {
             int otherVehicleIndex = vehicleIndex - 1;
             //System.out.println(vehicles.get(vehicleIndex).getPosition().z + ", " + vehicles.get(otherVehicleIndex).getPosition().z);
             Vehicle otherVehicle = vehicles.get(otherVehicleIndex);
             //getDistanceToNextVehicle(otherVehicle) > reactionSegments * getCircuit().getSegmentLenght() || 
-            while (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && !Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) otherVehicle.getPointX(), (float) (otherVehicle.getImageWidth() * 1.1))) {
+            while (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && ! Utils.overlap(this.getPointX(), this.getImageWidth() * 1.1, otherVehicle.getPointX(), otherVehicle.getImageWidth() * 1.1)) {
                 otherVehicle = vehicles.get(otherVehicleIndex - 1);
                 otherVehicleIndex--;
             }
-            
-            
-            
+
+
+
             //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
             if (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && otherVehicle.getSpeed() < this.getSpeed()) {
                 //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
@@ -105,10 +112,10 @@ public class Vehicle extends Entity {
             }
         }
         if (this.getPosition().x > getCircuit().getRoadWidth() - getCircuit().getRoadWidth() / 6) {
-        this.getPosition().x -= (getCircuit().getRoadWidth() / 20);
+            this.getPosition().x -= (getCircuit().getRoadWidth() / 20);
         }
         if (this.getPosition().x < -getCircuit().getRoadWidth() + getCircuit().getRoadWidth() / 6) {
-        this.getPosition().x += (getCircuit().getRoadWidth() / 20);
+            this.getPosition().x += (getCircuit().getRoadWidth() / 20);
         }
     }
     

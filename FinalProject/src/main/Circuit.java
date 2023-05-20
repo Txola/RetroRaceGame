@@ -209,26 +209,26 @@ public class Circuit {
                 int x3 = Math.round(currentPoint.getXWorld() + currWidth);
                 int x4 = Math.round(currentPoint.getXWorld() - currWidth);
                 setTextureColor(g2, colors[0], colors[1], i, 1);
-                drawPolygon(g2, x1, x2, x3, x4, previousPoint.getYWorld(),
-                        currentPoint.getYWorld());
+                drawPolygon(g2, x1, x2, x3, x4, (int) previousPoint.getYWorld(),
+                        (int) currentPoint.getYWorld());
                 
                setTextureColor(g2, colors[2], colors[3], i, 1);
-                drawPolygon(g2, 0, x1, x4, 0, previousPoint.getYWorld(),
-                        currentPoint.getYWorld());
+                drawPolygon(g2, 0, x1, x4, 0, (int) previousPoint.getYWorld(),
+                        (int) currentPoint.getYWorld());
                 drawPolygon(g2, x2, screenWidth, screenWidth, x3,
-                        previousPoint.getYWorld(), currentPoint.getYWorld());
+                        (int) previousPoint.getYWorld(), (int)currentPoint.getYWorld());
                 
 
                 prevWidth = previousPoint.getXScale() * rumblestripWidth;
                 currWidth = currentPoint.getXScale() * rumblestripWidth;
                 setTextureColor(g2, Color.red, Color.white, i, 2);
                 drawPolygon(g2, Math.round(x1 - prevWidth), x1, x4, 
-                        Math.round(x4 - currWidth), previousPoint.getYWorld(),
-                        currentPoint.getYWorld());
+                        Math.round(x4 - currWidth), (int)previousPoint.getYWorld(),
+                        (int)currentPoint.getYWorld());
                 drawPolygon(g2, x2, Math.round(x2 + prevWidth),
                         Math.round(x3 + currWidth), x3,
-                        previousPoint.getYWorld(), currentPoint.getYWorld());
-                maxy = currentPoint.getYWorld();
+                        (int) previousPoint.getYWorld(), (int)currentPoint.getYWorld());
+                maxy = (int)currentPoint.getYWorld();
             }   
             
             previousPoint = currentPoint;

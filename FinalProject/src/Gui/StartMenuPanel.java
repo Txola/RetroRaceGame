@@ -150,7 +150,7 @@ public class StartMenuPanel extends javax.swing.JPanel {
 
     private void singleplayerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singleplayerButtonActionPerformed
         // TODO add your handling code here:
-        gameFrame.startGame(new GamePanel(gameFrame, false, false));
+        gameFrame.startGame(new GamePanel(gameFrame, false, false, true));
     }//GEN-LAST:event_singleplayerButtonActionPerformed
 
 

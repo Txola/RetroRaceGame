@@ -47,7 +47,7 @@ import javax.swing.SwingConstants;
  * @author txola
  */
 
-public class GamePanel extends JPanel implements Runnable, KeyListener {
+public class GamePanel extends JPanel implements Runnable {
     final int FRAMES_PER_SECOND = 60;
     final int RUMBLESTRIP_WIDTH = 400;
     final int NUMBER_OF_SEGMENTS = 800;
@@ -56,13 +56,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     private GameFrame gameFrame;
     private boolean pause = true;
     private Thread gameThread;
-    private KeyInputHandler keyInput, oponentKeyInput;
+    private KeyInputStatus keyInputStatus, oponentKeyInputStatus;
+    private KeyInputHandler inputHandler;
     private Circuit circuit;
     private Camera camera;
     private Player player, oponent;
     private Background backgroundCity, backgroundSky;
     private Segment lastSegment;
-    private Vehicle vehicle;
     private List<Entity> sprites;
     private List<Vehicle> vehicles;
 
@@ -78,7 +78,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     
     
-    public GamePanel(GameFrame gameFrame, boolean network, boolean host) {
+    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows) {
         this.gameFrame = gameFrame;
         this.network = network;
         this.host = host;
@@ -101,13 +101,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             add(settingsButton);
         }
         
-        keyInput = new KeyInputHandler();
-        if (network) oponentKeyInput = new KeyInputHandler();
-        addKeyListener(this);
+        inputHandler = new KeyInputHandler(arrows);
+        keyInputStatus = new KeyInputStatus();
+        if (network) oponentKeyInputStatus = new KeyInputStatus();
+        addKeyListener(inputHandler);
         setFocusable(true);
         requestFocus();
         circuit = new Circuit(roadWidth, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS, 450);
-        camera = new Camera();
         backgroundCity = new Background("src/resources/city_2.png", 100);
         backgroundSky = new Background("src/resources/clouds.png", 0);
         lastSegment = circuit.getCurrentSegment(0);
@@ -116,20 +116,23 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         if (network) {
             if (host) 
-                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, ResourceManager.instance().get(0));
+                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
             else 
-                player = new Player(new Coordinate3D(roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, ResourceManager.instance().get(0));
+                player = new Player(new Coordinate3D( roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
         }
         else {
-            player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInput, circuit, ResourceManager.instance().get(0));
-            sprites.add(player);
+            player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
         }
+        
+        camera = new Camera();
+        camera.update(player.getPosition());
         
         if (!network || host) {
             loadVehicles();
             circuit.addSprites(sprites);
             System.out.println(sprites.size());
         }
+        
         if (network) {
             initMultiplayer();
             
@@ -150,8 +153,17 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         g2.fillRect(0, getHeight()/2, getWidth(), getHeight());
         backgroundSky.draw(g2, getWidth(), getHeight());
         backgroundCity.draw(g2, getWidth(), getHeight());
-        
         circuit.renderCircuit(g2, camera, getWidth(), getHeight());
+        if (network && !host) {
+            synchronized(sprites) {
+                for (Entity sprite : sprites) {
+                    sprite.updateLooped(camera.getPosition().z);
+                }
+            }
+        }
+        synchronized(sprites) {
+            sprites.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
+        }
         synchronized(sprites) {
             sprites.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
         }
@@ -199,42 +211,76 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
                         Float.parseFloat(parts[2]),
                         Float.parseFloat(parts[3])),
                         Float.parseFloat(parts[4]),
-                        oponentKeyInput,
+                        oponentKeyInputStatus,
                         circuit,
                         ResourceManager.instance().get(Integer.parseInt(parts[0])));
                 synchronized(sprites) {
                     sprites.add(player);
                     sprites.add(this.oponent);
+
                 }
                 
                 while (true) {
-                long currentTime = System.nanoTime();
-                deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
+                    long currentTime = System.nanoTime();
+                    deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
 
-                lastUpdateTime = currentTime;
+                    lastUpdateTime = currentTime;
 
-                if (deltaTime >= 1) {
-                    frameCounter++;
-                    //LOGIC HERE-------
-                    if (!pause) {
-                        outToSocket.writeUTF(keyInput.toString());
-                        String oponentInputState = inFromSocket.readUTF();
-                        if(host) System.out.println("host: " +player.getPosition().x + " "+ player.getPosition().z);
-                        else System.out.println("join: " + this.oponent.getPosition().x+ " "+ this.oponent.getPosition().z);
-                        oponentKeyInput.updateState(oponentInputState);
-                        update(deltaT);
+                    if (deltaTime >= 1) {
+                        frameCounter++;
+                        //LOGIC HERE-------
+                        if (!pause) {
+                            keyInputStatus.updateState(inputHandler.toString());
+
+                            if (host) {
+                                StringBuilder spritesString = new StringBuilder();
+                                for (Vehicle vehicle : vehicles) {
+                                    spritesString.append(vehicle.getPosition().x + "\n");
+                                }
+                                spritesString.append(player + "\n");
+                                spritesString.append(keyInputStatus);
+                                outToSocket.writeUTF(spritesString.toString());
+                                String lines[] = inFromSocket.readUTF().split("\n");
+                                oponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
+                                this.oponent.updateState(lines[vehicles.size()]);
+                                updateVehicles(lines);
+
+                            }
+                            else {
+                                StringBuilder spritesString = new StringBuilder();
+                                for (Vehicle vehicle : vehicles) {
+                                    spritesString.append(vehicle.getPosition().x + "\n");
+                                }
+                                spritesString.append(player + "\n" + keyInputStatus);
+                                outToSocket.writeUTF(spritesString.toString());
+                                String vehicles = inFromSocket.readUTF();
+                                String[] lines = vehicles.split("\\n");
+                                String oponentInputState = lines[this.vehicles.size() + 1];
+                                oponentKeyInputStatus.updateState(oponentInputState);
+                                this.oponent.updateState(lines[this.vehicles.size()]);
+                                synchronized (vehicles) {
+                                    for (Vehicle vehicle : this.vehicles) {
+                                        vehicle.updateLooped(camera.getPosition().z);
+                                    }
+                                }
+                                updateVehicles(lines);
+                                
+                            }
+
+                            update(deltaT);
+
+                        }
+                        repaint();
+                        //--------------
+                        deltaTime--;
                     }
-                    repaint();
-                    //--------------
-                    deltaTime--;
-                }
-                if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
-                    System.out.println("FPS: " + frameCounter);
-                    countStartTime = System.nanoTime();
-                    frameCounter = 0;
+                    if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
+                        System.out.println("FPS: " + frameCounter);
+                        countStartTime = System.nanoTime();
+                        frameCounter = 0;
 
-            }
-        }
+                    }
+                }
                 
             } catch (IOException ex) {
                 Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -242,6 +288,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
         
         else {
+            sprites.add(player);
             while (true) {
                     long currentTime = System.nanoTime();
                     deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
@@ -252,6 +299,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
                         frameCounter++;
                         //LOGIC HERE-------
                         if (!pause) {
+                            keyInputStatus.updateState(inputHandler.toString());
                             update(deltaT);
                         }
                         repaint();
@@ -269,7 +317,6 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
     
     private void update(double dt) {
-
         Segment playerSegment = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
         final float prop = (float) 1;
         final float prop2 = (float) 2.5;
@@ -282,7 +329,6 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         backgroundSky.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
         
         float dx = roadWidth / (1 * FRAMES_PER_SECOND);
-        
         player.update(dt, dx);
         player.updateX(playerSegment.getCurve(), dx);
         if (network) {
@@ -291,16 +337,26 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             oponent.updateX(oponentSegment.getCurve(), dx);
         }
         
-        synchronized(sprites) {
-            for (Vehicle vehicle : vehicles) {
-                vehicle.update(dt, vehicles, player);
+        
+        if (network) {
+            synchronized (vehicles) {
+                for (Vehicle vehicle : vehicles) {
+                    vehicle.updateLooped(camera.getPosition().z);
+                }
+            vehicles.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
             }
         }
+        
+        
         synchronized(sprites) {
-            sprites.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
-        }
-        synchronized(vehicles) {
-            vehicles.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
+            for (Vehicle vehicle : vehicles) {
+                if (!network) {
+                    vehicle.update(dt, vehicles, player);
+                }
+                else {
+                    vehicle.update(dt, vehicles, oponent);
+                }
+            }
         }
         
         camera.update(player.getPosition());
@@ -308,12 +364,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             camera.restart();
             player.restart();
         }
-        
-        for (Entity sprite : sprites) {
-            Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z % circuit.getRoadLength());
+  
+        synchronized(sprites) {
+            for (Entity sprite : sprites) {
+                Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z % circuit.getRoadLength());
                 if (vehicleSegment == playerSegment) {
-
-                    if ((!(sprite instanceof Vehicle) || player.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(player.getPointX(), player.getImageWidth() * player.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
+                    if ((!(sprite instanceof Vehicle) || player.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(player.getPointX(), player.getImageWidth()* player.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
                         if (!(sprite instanceof Vehicle)) {
                             player.colidedWithSprite = true;
                             player.setSpeed(0);
@@ -322,21 +378,27 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
                             player.setSpeed(((Vehicle) sprite).getSpeed()/6);
                     }
                 }
-                if (network) {
-                    Segment oponentSegment = circuit.getCurrentSegment(oponent.getPosition().z % circuit.getRoadLength());
-                    if (vehicleSegment == oponentSegment) {
-
-                    if ((!(sprite instanceof Vehicle) || oponent.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(oponent.getPointX(), oponent.getImageWidth() * oponent.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
-                        if (!(sprite instanceof Vehicle)) {
-                            oponent.colidedWithSprite = true;
-                            oponent.setSpeed(0);
-                        }
-                        else
-                            oponent.setSpeed(((Vehicle) sprite).getSpeed()/6);
-                    }
+            }
+        }
+        if (network && !host) {
+            synchronized (vehicles) {
+                for (Vehicle vehicle : vehicles) {
+                    vehicle.updateLooped(oponent.getPosition().z - camera.getDistanceToPlayer());
                 }
             }
         }
+        if (network && host) {
+            synchronized (vehicles) {
+                for (Vehicle vehicle : vehicles) {
+                    vehicle.updateLooped(player.getPosition().z - camera.getDistanceToPlayer());
+                }
+            }
+        }
+        
+        synchronized(vehicles) {
+            vehicles.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
+        }
+        
         lastSegment = playerSegment;
     }
     
@@ -371,7 +433,6 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
     
-    
     public void pauseOrResume() {
         pause = false;
     }
@@ -379,7 +440,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         final float maxSpeed = (float) (SEGMENT_LENGTH * 0.4 * FRAMES_PER_SECOND);
         final int frequency = 15;
         final int minimumSeparation = 3;
-        /*for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
+        for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
         float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
         float x = Utils.uniform(-roadWidth + roadWidth / 5, roadWidth - roadWidth / 5);
         Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, ResourceManager.instance().getRandomVehicleImage());
@@ -388,7 +449,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
         for (Vehicle vehicle : vehicles) {
         vehicle.setSpeed(maxSpeed * Utils.uniform((float) 0.5, 1));
-        }*/
+        }
     }
     
     private void parseEntities(String entities) {
@@ -423,6 +484,16 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
     
+    private void updateVehicles(String[] lines) {
+        for (int i = 0; i < this.vehicles.size(); i++) {
+            Vehicle vehicle = vehicles.get(i);
+            if (camera.getPosition().z > oponent.getPosition().z - camera.getDistanceToPlayer() && !(vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z))
+                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+            if (camera.getPosition().z <= oponent.getPosition().z - camera.getDistanceToPlayer() && !vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z)
+                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+        }
+    }
+    
     private void initPauseDialog() {
         PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
         pauseDialog.setModalityType(ModalityType.APPLICATION_MODAL);
@@ -430,28 +501,4 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         pauseDialog.setVisible(true);
     }
 
-//<editor-fold defaultstate="collapsed" desc="inputs">
-    @Override
-    public void keyTyped(KeyEvent arg0) {
-    }
-    
-    @Override
-    public void keyPressed(KeyEvent evt) {
-        keyInput.updateKeyPressed(evt.getKeyCode());
-    }
-    
-    @Override
-    public void keyReleased(KeyEvent evt) {
-        keyInput.updateKeyReleased(evt.getKeyCode());
-    }
-//</editor-fold>
 }
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
-
-
