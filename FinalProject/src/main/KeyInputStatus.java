@@ -47,4 +47,8 @@ public class KeyInputStatus {
     public String toString() {
         return (up + " " + down + " " + left + " " + right);
     }
+    
+    public void restart() {
+        up = down = right = left = false;
+    }
 }

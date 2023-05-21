@@ -145,12 +145,10 @@ public class GamePanel extends JPanel implements Runnable {
         if (!network || host) {
             loadVehicles();
             circuit.addSprites(sprites);
-            System.out.println(sprites.size());
         }
         
         if (network) {
             initMultiplayer();
-            
         }
 
         gameThread = new Thread(this);
@@ -201,149 +199,145 @@ public class GamePanel extends JPanel implements Runnable {
         long frameCounter = 0;
         long countStartTime = System.nanoTime();
         
-        if (network) {
-            //<editor-fold defaultstate="collapsed" desc="multiplayer loop">
-            try (
-                    DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
-                    DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
-                String oponent, oponentName;
-                String name = player.getName();
-                if (name == null)
-                    name = " ";
-                if (host) {
-                    StringBuilder spritesString = new StringBuilder();
-                    for (Entity sprite : sprites) {
-                        spritesString.append(sprite + "\n");
-                    }
-                    outToSocket.writeUTF(spritesString.toString());
-                    outToSocket.writeUTF(player + "\n" + name);
-                    String[] lines = inFromSocket.readUTF().split("\n");
-                    oponent = lines[0];
-                    oponentName = lines[1];
-                    
-                }
-                else {
-                    String entities = inFromSocket.readUTF();
-                    parseEntities(entities);
-                    outToSocket.writeUTF(player + "\n" + name);
-                    String[] lines = inFromSocket.readUTF().split("\n");
-                    oponent = lines[0];
-                    oponentName = lines[1];
-                }
-                final String[] parts = oponent.split(" ");
-                this.oponent = new Player(new Coordinate3D(
-                        Float.parseFloat(parts[1]),
-                        Float.parseFloat(parts[2]),
-                        Float.parseFloat(parts[3])),
-                        Float.parseFloat(parts[4]),
-                        oponentKeyInputStatus,
-                        circuit,
-                        ResourceManager.instance().get(Integer.parseInt(parts[0])),
-                        true);
-                if (!oponentName.equals(" "))
-                    this.oponent.setName(oponentName);
-                synchronized(sprites) {
-                    sprites.add(player);
-                    sprites.add(this.oponent);
-                    
-                }
-                
-                while (true) {
-                    long currentTime = System.nanoTime();
-                    deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
-                    
-                    lastUpdateTime = currentTime;
-                    
-                    if (deltaTime >= 1) {
-                        frameCounter++;
-                        //LOGIC HERE-------
-                        update(deltaT);
-
-                        if (!pause) {
-                            keyInputStatus.updateState(inputHandler.toString());
-                            
-                            if (host) {
-                                StringBuilder spritesString = new StringBuilder();
-                                for (Vehicle vehicle : vehicles) {
-                                    spritesString.append(vehicle.getPosition().x + "\n");
-                                }
-                                spritesString.append(player + "\n");
-                                spritesString.append(keyInputStatus);
-                                outToSocket.writeUTF(spritesString.toString());
-                                String lines[] = inFromSocket.readUTF().split("\n");
-                                oponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
-                                this.oponent.updateState(lines[vehicles.size()]);
-                                updateVehicles(lines);
-                                
-                            }
-                            else {
-                                StringBuilder spritesString = new StringBuilder();
-                                for (Vehicle vehicle : vehicles) {
-                                    spritesString.append(vehicle.getPosition().x + "\n");
-                                }
-                                spritesString.append(player + "\n" + keyInputStatus);
-                                outToSocket.writeUTF(spritesString.toString());
-                                String vehicles = inFromSocket.readUTF();
-                                String[] lines = vehicles.split("\\n");
-                                String oponentInputState = lines[this.vehicles.size() + 1];
-                                oponentKeyInputStatus.updateState(oponentInputState);
-                                this.oponent.updateState(lines[this.vehicles.size()]);
-                                synchronized (vehicles) {
-                                    for (Vehicle vehicle : this.vehicles) {
-                                        vehicle.updateLooped(camera.getPosition().z);
-                                    }
-                                }
-                                updateVehicles(lines);
-                                
-                            }
-                        }
-                        repaint();
-                        //--------------
-                        deltaTime--;
-                    }
-                    if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
-                        System.out.println("FPS: " + frameCounter);
-                        countStartTime = System.nanoTime();
-                        frameCounter = 0;
-
-                    }
-                }
-                
-            } catch (IOException ex) {
-                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-//</editor-fold>
-        }
-        
-        else {
-            //<editor-fold defaultstate="collapsed" desc="singlePlayer loop">
+        //<editor-fold defaultstate="collapsed" desc="singlePlayer loop">
+        if (!network)
             sprites.add(player);
+        while (!network) {
+            long currentTime = System.nanoTime();
+            deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
+
+            lastUpdateTime = currentTime;
+
+            if (deltaTime >= 1) {
+                frameCounter++;
+                if (!pause) {
+                    keyInputStatus.updateState(inputHandler.toString());
+                    update(deltaT);
+                }
+                repaint();
+                deltaTime--;
+            }
+            if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
+                System.out.println("FPS: " + frameCounter);
+                countStartTime = System.nanoTime();
+                frameCounter = 0;
+
+            }
+        }
+//</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="multiplayer">
+        try (
+            DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
+            DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
+            String oponent, oponentName;
+            String name = player.getName();
+            if (name == null)
+                name = " ";
+            if (host) {
+                sprites.remove(player);
+                StringBuilder spritesString = new StringBuilder();
+                for (Entity sprite : sprites) {
+                    spritesString.append(sprite + "\n");
+                }
+                outToSocket.writeUTF(spritesString.toString());
+                outToSocket.writeUTF(player + "\n" + name);
+                String[] lines = inFromSocket.readUTF().split("\n");
+                oponent = lines[0];
+                oponentName = lines[1];
+
+            }
+            else {
+                String entities = inFromSocket.readUTF();
+                parseEntities(entities);
+                outToSocket.writeUTF(player + "\n" + name);
+                String[] lines = inFromSocket.readUTF().split("\n");
+                oponent = lines[0];
+                oponentName = lines[1];
+            }
+            final String[] parts = oponent.split(" ");
+            this.oponent = new Player(new Coordinate3D(
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    Float.parseFloat(parts[3])),
+                    Float.parseFloat(parts[4]),
+                    oponentKeyInputStatus,
+                    circuit,
+                    ResourceManager.instance().get(Integer.parseInt(parts[0])),
+                    true);
+            if (!oponentName.equals(" "))
+                this.oponent.setName(oponentName);
+            synchronized(sprites) {
+                sprites.add(this.player);
+                sprites.add(this.oponent);
+            }
+            
+            System.out.println(vehicles.size());
+
             while (true) {
                 long currentTime = System.nanoTime();
                 deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
-                
+
                 lastUpdateTime = currentTime;
-                
+
                 if (deltaTime >= 1) {
                     frameCounter++;
-                    //LOGIC HERE-------
+                    update(deltaT);
+
                     if (!pause) {
                         keyInputStatus.updateState(inputHandler.toString());
-                        update(deltaT);
+
+                        if (host) {
+                            StringBuilder spritesString = new StringBuilder();
+                            for (Vehicle vehicle : vehicles) {
+                                spritesString.append(vehicle.getPosition().x + "\n");
+                            }
+                            spritesString.append(player + "\n");
+                            spritesString.append(keyInputStatus);
+                            outToSocket.writeUTF(spritesString.toString());
+                            String lines[] = inFromSocket.readUTF().split("\n");
+                            oponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
+                            this.oponent.updateState(lines[vehicles.size()]);
+                            updateVehicles(lines);
+
+                        }
+                        else {
+                            StringBuilder spritesString = new StringBuilder();
+                            for (Vehicle vehicle : vehicles) {
+                                spritesString.append(vehicle.getPosition().x + "\n");
+                            }
+                            spritesString.append(player + "\n" + keyInputStatus);
+                            outToSocket.writeUTF(spritesString.toString());
+                            String vehicles = inFromSocket.readUTF();
+                            String[] lines = vehicles.split("\\n");
+                            String oponentInputState = lines[this.vehicles.size() + 1];
+                            oponentKeyInputStatus.updateState(oponentInputState);
+                            this.oponent.updateState(lines[this.vehicles.size()]);
+                            synchronized (vehicles) {
+                                for (Vehicle vehicle : this.vehicles) {
+                                    vehicle.updateLooped(camera.getPosition().z);
+                                }
+                            }
+                            updateVehicles(lines);
+
+                        }
                     }
                     repaint();
-                    //--------------
                     deltaTime--;
                 }
                 if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
                     System.out.println("FPS: " + frameCounter);
                     countStartTime = System.nanoTime();
                     frameCounter = 0;
-                    
+
                 }
             }
+
+        } catch (IOException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+}
 //</editor-fold>
-        }
+
     }
     
     private void update(double dt) {
@@ -449,13 +443,26 @@ public class GamePanel extends JPanel implements Runnable {
     }
     
     private void initMultiplayer() {
-        if (host) {
-            try {
-                hostSocket = new ServerSocket(10000);
-                joinSocket = hostSocket.accept();
-            } catch (IOException ex) {
-                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        Thread accept = new Thread( new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    hostSocket = new ServerSocket(10000);
+                    joinSocket = hostSocket.accept();
+                    lapSeconds = fastestLap = lap = 0;
+                    player.restart();
+                    player.getPosition().x = -roadWidth / 3;
+                    keyInputStatus.restart();
+                    network = true;
+                } catch (IOException ex) {
+                    Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+        });
+        
+        if (host) {
+            network = false;
+            accept.start();
         }
         else {
             try {
@@ -546,19 +553,9 @@ public class GamePanel extends JPanel implements Runnable {
                     vehicle.getPosition().z < player.getPosition().z)) {
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
             }
-            
         }
     }
     
-    /*
-    for (int i = 0; i < this.vehicles.size(); i++) {
-            Vehicle vehicle = vehicles.get(i);
-            if (oponent.getPosition().z > player.getPosition().z && !(vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z))
-                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
-            if (player.getPosition().z <= oponent.getPosition().z - camera.getDistanceToPlayer() && !vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z)
-                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
-        }
-    */
     
     public void initPauseDialog() {
         PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
