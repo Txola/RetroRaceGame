@@ -260,6 +260,10 @@ public class GamePanel extends JPanel implements Runnable {
                     if (deltaTime >= 1) {
                         frameCounter++;
                         //LOGIC HERE-------
+                        update(deltaT);
+
+                        
+                        
                         if (!pause) {
                             keyInputStatus.updateState(inputHandler.toString());
 
@@ -298,7 +302,6 @@ public class GamePanel extends JPanel implements Runnable {
                                 
                             }
 
-                            update(deltaT);
 
                         }
                         repaint();
@@ -534,12 +537,32 @@ public class GamePanel extends JPanel implements Runnable {
     private void updateVehicles(String[] lines) {
         for (int i = 0; i < this.vehicles.size(); i++) {
             Vehicle vehicle = vehicles.get(i);
-            if (camera.getPosition().z > oponent.getPosition().z - camera.getDistanceToPlayer() && !(vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z))
+            if (oponent.getPosition().z == player.getPosition().z && !host)
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
-            if (camera.getPosition().z <= oponent.getPosition().z - camera.getDistanceToPlayer() && !vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z)
+            
+            else if (oponent.getPosition().z > player.getPosition().z &&
+                    (vehicle.getPosition().z > oponent.getPosition().z ||
+                     vehicle.getPosition().z < player.getPosition().z)) {
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+            }
+            else if (oponent.getPosition().z < player.getPosition().z && 
+                    (vehicle.getPosition().z >= oponent.getPosition().z &&
+                    vehicle.getPosition().z < player.getPosition().z)) {
+                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+            }
+            
         }
     }
+    
+    /*
+    for (int i = 0; i < this.vehicles.size(); i++) {
+            Vehicle vehicle = vehicles.get(i);
+            if (oponent.getPosition().z > player.getPosition().z && !(vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z))
+                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+            if (player.getPosition().z <= oponent.getPosition().z - camera.getDistanceToPlayer() && !vehicle.isLooped() && vehicle.getPosition().z > oponent.getPosition().z)
+                this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
+        }
+    */
     
     public void initPauseDialog() {
         PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
