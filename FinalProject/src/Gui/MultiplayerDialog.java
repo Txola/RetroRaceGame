@@ -49,6 +49,7 @@ public class MultiplayerDialog extends javax.swing.JDialog {
         nameLabel = new javax.swing.JLabel();
         nombreHost = new javax.swing.JTextField();
         hostConfirmButton = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         nombreCliente = new javax.swing.JTextField();
@@ -82,6 +83,9 @@ public class MultiplayerDialog extends javax.swing.JDialog {
             }
         });
 
+        jTextField1.setText("jTextField1");
+        jTextField1.setToolTipText("");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -93,7 +97,9 @@ public class MultiplayerDialog extends javax.swing.JDialog {
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(nameLabel)
                             .addComponent(nombreHost, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 232, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 116, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(hostConfirmButton)))
@@ -102,10 +108,15 @@ public class MultiplayerDialog extends javax.swing.JDialog {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(nameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nombreHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(nameLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nombreHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
                 .addComponent(hostConfirmButton)
                 .addContainerGap())
@@ -303,6 +314,7 @@ public class MultiplayerDialog extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane3;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JButton joinButton;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nombreCliente;

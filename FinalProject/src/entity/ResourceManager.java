@@ -19,7 +19,7 @@ public class ResourceManager {
     
     public ResourceManager() {
         images = new ArrayList<>();
-        images.add(new Image("src/resources/car2.png", (float) 0.4, 1));//player
+        images.add(new Image("src/resources/car2.png", (float) 0.45, 1));//player
         images.add(new Image("src/resources/mercedes.png", 1, 1));
         images.add(new Image("src/resources/subaruGris.png", (float) 2.3, 1));
         images.add(new Image("src/resources/azul.png", (float) 0.65, 1));

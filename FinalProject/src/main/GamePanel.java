@@ -6,6 +6,7 @@
 package main;
 
 //<editor-fold defaultstate="collapsed" desc="Imports">
+import Gui.GameInfoPanel;
 import Gui.PauseMenuDialog;
 import entity.Background;
 import entity.Entity;
@@ -65,16 +66,40 @@ public class GamePanel extends JPanel implements Runnable {
     private Segment lastSegment;
     private List<Entity> sprites;
     private List<Vehicle> vehicles;
-
+    private GameInfoPanel infoPanel;
     
     private boolean network, host;
     private ServerSocket hostSocket;
     private Socket joinSocket;
-
+    private int lap;
+    private float lapSeconds;
+    private float fastestLap;
 
     public Camera getCamera() {
         return camera;
     }
+
+    public int getFRAMES_PER_SECOND() {
+        return FRAMES_PER_SECOND;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public int getLap() {
+        return lap;
+    }
+
+    public float getLapSeconds() {
+        return lapSeconds;
+    }
+
+    public float getFastestLap() {
+        return fastestLap;
+    }
+    
+    
 
     
     
@@ -82,7 +107,13 @@ public class GamePanel extends JPanel implements Runnable {
         this.gameFrame = gameFrame;
         this.network = network;
         this.host = host;
-        if (!network) {
+        this.lap = 0;
+        this.lapSeconds = 0;
+        this.fastestLap = -1;
+        infoPanel = new GameInfoPanel(this);
+        setLayout(new BorderLayout());
+        add(infoPanel, BorderLayout.NORTH);
+        /*if (!network) {
             setLayout(new FlowLayout(FlowLayout.RIGHT, 15, 15));
             JButton settingsButton = new JButton();
 
@@ -99,7 +130,7 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             });
             add(settingsButton);
-        }
+        }*/
         
         inputHandler = new KeyInputHandler(arrows);
         keyInputStatus = new KeyInputStatus();
@@ -329,6 +360,7 @@ public class GamePanel extends JPanel implements Runnable {
         backgroundSky.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
         
         float dx = roadWidth / (1 * FRAMES_PER_SECOND);
+        float playerLastPosition = player.getPosition().z;
         player.update(dt, dx);
         player.updateX(playerSegment.getCurve(), dx);
         if (network) {
@@ -346,7 +378,6 @@ public class GamePanel extends JPanel implements Runnable {
             vehicles.sort((v2, v1)-> Float.compare(v1.isLooped() ? v1.getPosition().z + circuit.getRoadLength(): v1.getPosition().z, v2.isLooped() ? v2.getPosition().z + circuit.getRoadLength(): v2.getPosition().z));   
             }
         }
-        
         
         synchronized(sprites) {
             for (Vehicle vehicle : vehicles) {
@@ -400,6 +431,22 @@ public class GamePanel extends JPanel implements Runnable {
         }
         
         lastSegment = playerSegment;
+        
+        
+        
+        if (playerLastPosition - player.getMaxSpeed()> player.getPosition().z) {
+            lap++;
+            if (fastestLap < 0 || lapSeconds < fastestLap) {
+                fastestLap = lapSeconds;
+                infoPanel.updateFastestLapCounter();
+            }
+            lapSeconds = 0;
+        }
+        else {
+            lapSeconds += 1.0 / FRAMES_PER_SECOND;
+        }
+        
+        infoPanel.update();
     }
     
     private void initMultiplayer() {
@@ -494,7 +541,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
     
-    private void initPauseDialog() {
+    public void initPauseDialog() {
         PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
         pauseDialog.setModalityType(ModalityType.APPLICATION_MODAL);
         pauseDialog.setLocationRelativeTo(this);
