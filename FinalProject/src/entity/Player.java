@@ -6,6 +6,8 @@
 package entity;
 
 import java.awt.Color;
+import java.awt.Font;
+import static java.awt.Font.BOLD;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import main.Camera;
@@ -22,11 +24,22 @@ import main.Segment;
 public class Player extends Vehicle{
     KeyInputStatus input;
     public boolean colidedWithSprite;
+    String name;
+    boolean displayName;
 
-    public Player(Coordinate3D position, float maxSpeed, KeyInputStatus input, Circuit circuit, Image image) {
+    public Player(Coordinate3D position, float maxSpeed, KeyInputStatus input, Circuit circuit, Image image, boolean displayName) {
         super(position, maxSpeed, circuit, image);
         this.input = input;
+        this.displayName = displayName;
         speed = 0;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
     
     public void updateState(String state) {
@@ -72,24 +85,24 @@ public class Player extends Vehicle{
         
     }
     
-    
-    
     public void updateX(float curve, float dx) {
         float inc = (float) (curve * dx * (speed / maxSpeed)*(speed / maxSpeed) * 0.1);
         if (speed > 0 && !colidedWithSprite)
             getPosition().x += inc;
     }
     
-    /*@Override
-    public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
-    Point point = new Point(getPosition());
-    point.projectPoint(camera, 0, 0, 0, screenWidth / 2, screenHeight / 2);
-    float xScale = point.getXScale();
-    float yScale = point.getYScale();
-    setPointX(point.getXWorld());
-    setImageWidth((int) (getImage().getBufferedImage().getWidth() * getImage().getScale() * xScale));
-    setImageHeight((int) (getImage().getBufferedImage().getHeight() * getImage().getScale() * yScale));
-    g2.drawImage(getImage().getBufferedImage(), point.getXWorld() - getImageWidth() / 2,
-    point.getYWorld() - getImageHeight(), getImageWidth(), getImageHeight(), null);
-    }*/
+    @Override
+    public boolean draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
+        boolean visible = super.draw(g2, screenWidth, screenHeight, camera);
+        if (visible && name != null && displayName) {
+            float scale = getImageWidth() / (getImage().getBufferedImage().getWidth() * getImage().getScale());
+            g2.setFont(new Font("URW Gothic L", BOLD, (int) (120 * scale)));
+            g2.setColor(new Color(255,255,255));
+            int textLength = (int) g2.getFontMetrics().getStringBounds(name, g2).getWidth();
+            int x = (int) (getPointX() - textLength/2);
+            int y = (int) (getPointY() - getImageHeight() - 60 * scale);
+            g2.drawString(name, x, y);
+        }
+        return visible;
+    }
 }

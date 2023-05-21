@@ -39,7 +39,6 @@ public class GameInfoPanel extends javax.swing.JPanel {
         velocimeter = new javax.swing.JTextField();
         lapTimer = new javax.swing.JTextField();
         fastLapTime = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
 
         setFocusable(false);
         setMaximumSize(new java.awt.Dimension(1024, 60));
@@ -96,7 +95,7 @@ public class GameInfoPanel extends javax.swing.JPanel {
         fastLapTime.setBackground(new java.awt.Color(141, 141, 141));
         fastLapTime.setFont(new java.awt.Font("URW Gothic L", 1, 18)); // NOI18N
         fastLapTime.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        fastLapTime.setText("00:00:00");
+        fastLapTime.setText("--:--:--");
         fastLapTime.setToolTipText("");
         fastLapTime.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         fastLapTime.setFocusable(false);
@@ -109,9 +108,6 @@ public class GameInfoPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("URW Gothic L", 1, 18)); // NOI18N
-        jLabel1.setText("00:00:00");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -121,11 +117,9 @@ public class GameInfoPanel extends javax.swing.JPanel {
                 .addComponent(velocimeter, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(34, 34, 34)
                 .addComponent(fastLapTime, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 171, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 192, Short.MAX_VALUE)
                 .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(96, 96, 96)
-                .addComponent(jLabel1)
-                .addGap(178, 178, 178)
+                .addGap(323, 323, 323)
                 .addComponent(pauseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -138,9 +132,7 @@ public class GameInfoPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(pauseButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1))
+                    .addComponent(pauseButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(fastLapTime)
                     .addComponent(velocimeter))
                 .addContainerGap(41, Short.MAX_VALUE))
@@ -156,13 +148,13 @@ public class GameInfoPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_velocimeterActionPerformed
 
-    private void lapTimerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lapTimerActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_lapTimerActionPerformed
-
     private void fastLapTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fastLapTimeActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_fastLapTimeActionPerformed
+
+    private void lapTimerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lapTimerActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lapTimerActionPerformed
 
     public void update() {
         updateCounter(lapTimer, gamePanel.getLapSeconds());
@@ -196,7 +188,6 @@ public class GameInfoPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField fastLapTime;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField lapTimer;
     private javax.swing.JButton pauseButton;
     private javax.swing.JTextField velocimeter;

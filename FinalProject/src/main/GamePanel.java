@@ -103,7 +103,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     
     
-    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows) {
+    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows, String name) {
         this.gameFrame = gameFrame;
         this.network = network;
         this.host = host;
@@ -113,24 +113,7 @@ public class GamePanel extends JPanel implements Runnable {
         infoPanel = new GameInfoPanel(this);
         setLayout(new BorderLayout());
         add(infoPanel, BorderLayout.NORTH);
-        /*if (!network) {
-            setLayout(new FlowLayout(FlowLayout.RIGHT, 15, 15));
-            JButton settingsButton = new JButton();
-
-            settingsButton.setPreferredSize(new Dimension(120, 40));
-            settingsButton.setBackground(new Color(141, 141, 141));
-            settingsButton.setIcon(new ImageIcon(getClass().getResource("/resources/pause2.png")));
-            settingsButton.setText("Pause");
-            settingsButton.setFocusPainted(false);
-            settingsButton.setFocusable(false);
-            settingsButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    pause = true;
-                    initPauseDialog();
-                }
-            });
-            add(settingsButton);
-        }*/
+        
         
         inputHandler = new KeyInputHandler(arrows);
         keyInputStatus = new KeyInputStatus();
@@ -147,12 +130,13 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (network) {
             if (host) 
-                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
+                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
             else 
-                player = new Player(new Coordinate3D( roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
+                player = new Player(new Coordinate3D( roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
+            if (!name.isEmpty() && name != null) player.setName(name);
         }
         else {
-            player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0));
+            player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
         }
         
         camera = new Camera();
@@ -173,6 +157,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread.start();
 
     }
+    
     
     @Override
     public void paint(Graphics g) {
@@ -198,6 +183,7 @@ public class GamePanel extends JPanel implements Runnable {
         synchronized(sprites) {
             sprites.forEach(vehicle -> vehicle.draw(g2, getWidth(), getHeight(), camera));
         }
+
         super.paintChildren(g);
         g2.dispose();
     }
@@ -219,22 +205,29 @@ public class GamePanel extends JPanel implements Runnable {
             try (
                 DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
                 DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
-                String oponent;
+                String oponent, oponentName;
+                String name = player.getName();
+                if (name == null) 
+                    name = " ";
                 if (host) {
                     StringBuilder spritesString = new StringBuilder();
                     for (Entity sprite : sprites) {
                         spritesString.append(sprite + "\n");
-                        System.out.println(sprite + "\n");
                     }
                     outToSocket.writeUTF(spritesString.toString());
-                    oponent = inFromSocket.readUTF();
-                    outToSocket.writeUTF(player.toString());
+                    outToSocket.writeUTF(player + "\n" + name);
+                    String[] lines = inFromSocket.readUTF().split("\n");
+                    oponent = lines[0];
+                    oponentName = lines[1];
+                    
                 }
                 else {
                     String entities = inFromSocket.readUTF();
                     parseEntities(entities);
-                    outToSocket.writeUTF(player.toString());
-                    oponent = inFromSocket.readUTF();
+                    outToSocket.writeUTF(player + "\n" + name);
+                    String[] lines = inFromSocket.readUTF().split("\n");
+                    oponent = lines[0];
+                    oponentName = lines[1];
                 }
                 final String[] parts = oponent.split(" ");
                 this.oponent = new Player(new Coordinate3D(
@@ -244,7 +237,10 @@ public class GamePanel extends JPanel implements Runnable {
                         Float.parseFloat(parts[4]),
                         oponentKeyInputStatus,
                         circuit,
-                        ResourceManager.instance().get(Integer.parseInt(parts[0])));
+                        ResourceManager.instance().get(Integer.parseInt(parts[0])),
+                        true);
+                if (!oponentName.equals(" "))
+                    this.oponent.setName(oponentName);
                 synchronized(sprites) {
                     sprites.add(player);
                     sprites.add(this.oponent);
@@ -301,8 +297,6 @@ public class GamePanel extends JPanel implements Runnable {
                                 updateVehicles(lines);
                                 
                             }
-
-
                         }
                         repaint();
                         //--------------

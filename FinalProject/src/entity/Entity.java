@@ -5,6 +5,9 @@
  */
 package entity;
 
+import java.awt.Color;
+import java.awt.Font;
+import static java.awt.Font.BOLD;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -31,6 +34,7 @@ public class Entity implements Serializable{
     private float imageWidth;
     private float imageHeight;
     private float pointX;
+    private float pointY;
 
     
     public Entity(Coordinate3D position, Circuit circuit, Image image) {
@@ -47,6 +51,10 @@ public class Entity implements Serializable{
 
     public Circuit getCircuit() {
         return circuit;
+    }
+
+    public float getPointY() {
+        return pointY;
     }
 
     public Image getImage() {
@@ -89,7 +97,8 @@ public class Entity implements Serializable{
             looped = false;
     }
 
-    public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
+    //Returns if the sprite is visible
+    public boolean draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
         if (camera.getPosition().z > position.z) {
             looped = true;
         }
@@ -113,7 +122,8 @@ public class Entity implements Serializable{
             imageWidth = image.getBufferedImage().getWidth() * image.getScale() * xScale;
             imageHeight = image.getBufferedImage().getHeight() * image.getScale() * yScale;
             pointX = point.getXWorld();
-            float pointY = point.getYWorld();
+            pointY = point.getYWorld();
+            
                     
             if (pointY < currentSegment.maxy + imageHeight) {
                 int s2y, d2y;
@@ -133,8 +143,11 @@ public class Entity implements Serializable{
                         (int) pointY - (int) imageHeight, 
                         (int) pointX + (int) imageWidth / 2, 
                         d2y, 0, 0, image.getBufferedImage().getWidth(), s2y, null);
+                
+                return true;
             }
         }
+        return false;
     }
     
     @Override

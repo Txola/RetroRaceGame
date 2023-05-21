@@ -120,11 +120,11 @@ public class Vehicle extends Entity {
     }
     
     @Override
-    public void draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
+    public boolean draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
         if (getPosition().z > circuit.getRoadLength()) {
             restart();
         }
-        super.draw(g2, screenWidth, screenHeight, camera);
+        return super.draw(g2, screenWidth, screenHeight, camera);
     }
     
     @Override
