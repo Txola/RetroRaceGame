@@ -202,12 +202,13 @@ public class GamePanel extends JPanel implements Runnable {
         long countStartTime = System.nanoTime();
         
         if (network) {
+            //<editor-fold defaultstate="collapsed" desc="multiplayer loop">
             try (
-                DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
-                DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
+                    DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
+                    DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
                 String oponent, oponentName;
                 String name = player.getName();
-                if (name == null) 
+                if (name == null)
                     name = " ";
                 if (host) {
                     StringBuilder spritesString = new StringBuilder();
@@ -244,25 +245,23 @@ public class GamePanel extends JPanel implements Runnable {
                 synchronized(sprites) {
                     sprites.add(player);
                     sprites.add(this.oponent);
-
+                    
                 }
                 
                 while (true) {
                     long currentTime = System.nanoTime();
                     deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
-
+                    
                     lastUpdateTime = currentTime;
-
+                    
                     if (deltaTime >= 1) {
                         frameCounter++;
                         //LOGIC HERE-------
                         update(deltaT);
 
-                        
-                        
                         if (!pause) {
                             keyInputStatus.updateState(inputHandler.toString());
-
+                            
                             if (host) {
                                 StringBuilder spritesString = new StringBuilder();
                                 for (Vehicle vehicle : vehicles) {
@@ -275,7 +274,7 @@ public class GamePanel extends JPanel implements Runnable {
                                 oponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
                                 this.oponent.updateState(lines[vehicles.size()]);
                                 updateVehicles(lines);
-
+                                
                             }
                             else {
                                 StringBuilder spritesString = new StringBuilder();
@@ -313,34 +312,37 @@ public class GamePanel extends JPanel implements Runnable {
             } catch (IOException ex) {
                 Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
             }
+//</editor-fold>
         }
         
         else {
+            //<editor-fold defaultstate="collapsed" desc="singlePlayer loop">
             sprites.add(player);
             while (true) {
-                    long currentTime = System.nanoTime();
-                    deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
-
-                    lastUpdateTime = currentTime;
-
-                    if (deltaTime >= 1) {
-                        frameCounter++;
-                        //LOGIC HERE-------
-                        if (!pause) {
-                            keyInputStatus.updateState(inputHandler.toString());
-                            update(deltaT);
-                        }
-                        repaint();
-                        //--------------
-                        deltaTime--;
+                long currentTime = System.nanoTime();
+                deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
+                
+                lastUpdateTime = currentTime;
+                
+                if (deltaTime >= 1) {
+                    frameCounter++;
+                    //LOGIC HERE-------
+                    if (!pause) {
+                        keyInputStatus.updateState(inputHandler.toString());
+                        update(deltaT);
                     }
-                    if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
-                        System.out.println("FPS: " + frameCounter);
-                        countStartTime = System.nanoTime();
-                        frameCounter = 0;
-
+                    repaint();
+                    //--------------
+                    deltaTime--;
+                }
+                if (System.nanoTime() - countStartTime >= timeUnitsPerSecond) {
+                    System.out.println("FPS: " + frameCounter);
+                    countStartTime = System.nanoTime();
+                    frameCounter = 0;
+                    
                 }
             }
+//</editor-fold>
         }
     }
     

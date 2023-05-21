@@ -24,12 +24,9 @@ public class Vehicle extends Entity {
     float maxSpeed;
     float speed;
 
-    
-
     public Vehicle(Coordinate3D position, float maxSpeed, Circuit circuit, Image image) {
         super(position, circuit, image);
         this.maxSpeed = maxSpeed;
-        
     }
 
     
@@ -54,7 +51,6 @@ public class Vehicle extends Entity {
     }
 
     private float getDistanceToVehicleInFront(Vehicle vehicle) {
-        //System.out.println(this.isLooped() + ", " + this.getPosition().z + " - " + vehicle.isLooped() + ", " + vehicle.getPosition().z + ",   " + (vehicle.getPosition().z - this.getPosition().z));
         if (!this.isLooped() && vehicle.isLooped())
             return vehicle.getPosition().z + getCircuit().getRoadLength() - this.getPosition().z;
         return vehicle.getPosition().z - this.getPosition().z;
@@ -70,44 +66,29 @@ public class Vehicle extends Entity {
             direction = vehicle.getPosition().x > this.getPosition().x ? -1 : 1;
 
         float percent = (reactionDistance - getDistanceToVehicleInFront(vehicle)) / reactionDistance;
-        //System.out.println(percent);
         float vel = (float) Utils.easeInOut(0, 12000, percent) * ((speed - vehicle.getSpeed()) / maxSpeed);
         this.getPosition().x += direction * vel * dt;
     }
     
-    private void avoidPlayer(Player player, float reactionDistance, double dt) {
-        if (getDistanceToVehicleInFront(player) < reactionDistance && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap(this.getPointX(), this.getImageWidth() * 1.1, player.getPointX(), player.getImageWidth() * 1.1)) {
-            avoidVehicle(player, reactionDistance, dt);
-        }
-    }
-    
-    
-    
+      
     public void update(double dt, List<Vehicle> vehicles, Player player) {
         getPosition().z  += dt * speed;
         final int reactionDistance = 15 * getCircuit().getSegmentLenght();
         int vehicleIndex = vehicles.indexOf(this);
         
-            //avoidPlayer(player, reactionDistance, dt);
-        /*if (getDistanceToVehicleInFront(oponent) < reactionDistance && getDistanceToVehicleInFront(oponent) > 0 && oponent.getSpeed() < this.getSpeed() && Utils.overlap((int) this.getPointX(), (float) (this.getImageWidth() * 1.1), (int) oponent.getPointX(), (float) (oponent.getImageWidth() * 1.1))) {
-        avoidVehicle(oponent, reactionDistance, dt);
-        }*/
+        if (getDistanceToVehicleInFront(player) < reactionDistance && getDistanceToVehicleInFront(player) > 0 && player.getSpeed() < this.getSpeed() && Utils.overlap(this.getPointX(), this.getImageWidth() * 1.1, player.getPointX(), player.getImageWidth() * 1.1)) {
+            avoidVehicle(player, reactionDistance, dt);
+        }
         
         if (vehicleIndex > 0) {
             int otherVehicleIndex = vehicleIndex - 1;
-            //System.out.println(vehicles.get(vehicleIndex).getPosition().z + ", " + vehicles.get(otherVehicleIndex).getPosition().z);
             Vehicle otherVehicle = vehicles.get(otherVehicleIndex);
-            //getDistanceToNextVehicle(otherVehicle) > reactionSegments * getCircuit().getSegmentLenght() || 
             while (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && ! Utils.overlap(this.getPointX(), this.getImageWidth() * 1.1, otherVehicle.getPointX(), otherVehicle.getImageWidth() * 1.1)) {
                 otherVehicle = vehicles.get(otherVehicleIndex - 1);
                 otherVehicleIndex--;
             }
 
-
-
-            //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
             if (otherVehicleIndex > 0 && getDistanceToVehicleInFront(otherVehicle) < reactionDistance && otherVehicle.getSpeed() < this.getSpeed()) {
-                //System.out.println(getDistanceToNextVehicle(otherVehicle) + ", " + reactionSegments * getCircuit().getSegmentLenght());
                 avoidVehicle(otherVehicle, reactionDistance, dt);
             }
         }
