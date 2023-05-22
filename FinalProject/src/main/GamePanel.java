@@ -202,7 +202,7 @@ public class GamePanel extends JPanel implements Runnable {
         //<editor-fold defaultstate="collapsed" desc="singlePlayer loop">
         if (!network)
             sprites.add(player);
-        while (!network) {
+        while (!network && !Thread.interrupted()) {
             long currentTime = System.nanoTime();
             deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
 
@@ -224,9 +224,13 @@ public class GamePanel extends JPanel implements Runnable {
 
             }
         }
+        
 //</editor-fold>
         
         //<editor-fold defaultstate="collapsed" desc="multiplayer">
+        if (!network) {
+            return;
+        }
         try (
             DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
             DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
@@ -274,7 +278,7 @@ public class GamePanel extends JPanel implements Runnable {
             
             System.out.println(vehicles.size());
 
-            while (true) {
+            while (!Thread.interrupted()) {
                 long currentTime = System.nanoTime();
                 deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
 
@@ -334,13 +338,19 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-}
+            try {
+                joinSocket.close();
+                if (host) hostSocket.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
 //</editor-fold>
 
     }
     
     private void update(double dt) {
+        boolean network = this.network; //Just in case client joins while updating
         Segment playerSegment = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
         final float prop = (float) 1;
         final float prop2 = (float) 2.5;
@@ -556,6 +566,17 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
     
+    public void finish() {
+        if (network) {
+            try {
+                joinSocket.close();
+                if (host) hostSocket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);                
+            }
+        }
+        gameThread.interrupt();
+    }
     
     public void initPauseDialog() {
         PauseMenuDialog pauseDialog = new PauseMenuDialog(gameFrame, this);
@@ -563,5 +584,4 @@ public class GamePanel extends JPanel implements Runnable {
         pauseDialog.setLocationRelativeTo(this);
         pauseDialog.setVisible(true);
     }
-
 }

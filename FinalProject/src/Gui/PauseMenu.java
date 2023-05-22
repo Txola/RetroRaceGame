@@ -95,6 +95,7 @@ public class PauseMenu extends javax.swing.JPanel {
     private void goToMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goToMenuButtonActionPerformed
         // TODO add your handling code here:
         pauseMenuDialog.getGameFrame().goToMenu(pauseMenuDialog.getGamePanel());
+        pauseMenuDialog.getGamePanel().finish();
         pauseMenuDialog.dispose();
     }//GEN-LAST:event_goToMenuButtonActionPerformed
 
