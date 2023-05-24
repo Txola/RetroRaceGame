@@ -6,7 +6,10 @@
 package main;
 
 //<editor-fold defaultstate="collapsed" desc="Imports">
-import Gui.GameInfoPanel;
+import Gui.InfoPanel;
+import Gui.MultiplayerInfoPanel;
+import Gui.MultiplayerWaitingInfoPanel;
+import Gui.SoloInfoPanel;
 import Gui.PauseMenuDialog;
 import entity.Background;
 import entity.Entity;
@@ -66,7 +69,7 @@ public class GamePanel extends JPanel implements Runnable {
     private Segment lastSegment;
     private List<Entity> sprites;
     private List<Vehicle> vehicles;
-    private GameInfoPanel infoPanel;
+    private InfoPanel infoPanel;
     
     private boolean network, host;
     private ServerSocket hostSocket;
@@ -98,6 +101,14 @@ public class GamePanel extends JPanel implements Runnable {
     public float getFastestLap() {
         return fastestLap;
     }
+
+    public boolean isHost() {
+        return host;
+    }
+
+    
+    
+    
     
     
 
@@ -110,9 +121,13 @@ public class GamePanel extends JPanel implements Runnable {
         this.lap = 0;
         this.lapSeconds = 0;
         this.fastestLap = -1;
-        infoPanel = new GameInfoPanel(this);
+        if (!network)
+            infoPanel = new SoloInfoPanel(this);
+        else
+            infoPanel = new MultiplayerInfoPanel(gameFrame, this);
         setLayout(new BorderLayout());
-        add(infoPanel, BorderLayout.NORTH);
+        ((JPanel) infoPanel).setOpaque(false);
+        add((JPanel) infoPanel, BorderLayout.NORTH);
         
         
         inputHandler = new KeyInputHandler(arrows);
@@ -231,6 +246,9 @@ public class GamePanel extends JPanel implements Runnable {
         if (!network) {
             return;
         }
+        
+        
+        
         try (
             DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
             DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
@@ -241,8 +259,10 @@ public class GamePanel extends JPanel implements Runnable {
             if (host) {
                 sprites.remove(player);
                 StringBuilder spritesString = new StringBuilder();
-                for (Entity sprite : sprites) {
-                    spritesString.append(sprite + "\n");
+                synchronized (sprites) {
+                    for (Entity sprite : sprites) {
+                        spritesString.append(sprite + "\n");
+                    }
                 }
                 outToSocket.writeUTF(spritesString.toString());
                 outToSocket.writeUTF(player + "\n" + name);
@@ -276,7 +296,20 @@ public class GamePanel extends JPanel implements Runnable {
                 sprites.add(this.oponent);
             }
             
-            System.out.println(vehicles.size());
+            int i = 3;
+            while (i > 0) {
+                ((MultiplayerInfoPanel) infoPanel).showNumber(i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                i--;
+            }
+            ((MultiplayerInfoPanel) infoPanel).changePanel();
+            deltaTime = 0;
+            lastUpdateTime = System.nanoTime();
+            
 
             while (!Thread.interrupted()) {
                 long currentTime = System.nanoTime();
@@ -463,6 +496,7 @@ public class GamePanel extends JPanel implements Runnable {
                     player.restart();
                     player.getPosition().x = -roadWidth / 3;
                     keyInputStatus.restart();
+                    player.setSpeed(0);
                     network = true;
                 } catch (IOException ex) {
                     Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
