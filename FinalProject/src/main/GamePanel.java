@@ -8,6 +8,7 @@ package main;
 //<editor-fold defaultstate="collapsed" desc="Imports">
 import Gui.InfoPanel;
 import Gui.MultiplayerInfoPanel;
+import Gui.MultiplayerResultInfoDialog;
 import Gui.MultiplayerWaitingInfoPanel;
 import Gui.SoloInfoPanel;
 import Gui.PauseMenuDialog;
@@ -78,6 +79,7 @@ public class GamePanel extends JPanel implements Runnable {
     private float lapSeconds;
     private float fastestLap;
     private int numberOfLaps;
+    private int oponentLap;
 
     public Camera getCamera() {
         return camera;
@@ -106,7 +108,10 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean isHost() {
         return host;
     }
-
+    
+    public GameFrame getGameFrame() {
+        return gameFrame;
+    }
     
     
     
@@ -166,6 +171,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
         
         if (network) {
+            oponentLap = 0;
             initMultiplayer();
         }
 
@@ -299,6 +305,7 @@ public class GamePanel extends JPanel implements Runnable {
                 sprites.add(this.player);
                 sprites.add(this.oponent);
             }
+            ((MultiplayerInfoPanel) infoPanel).updateLapInfo(lap, numberOfLaps);
             
             int i = 3;
             while (i > 0) {
@@ -401,6 +408,9 @@ public class GamePanel extends JPanel implements Runnable {
         
         float dx = roadWidth / (1 * FRAMES_PER_SECOND);
         float playerLastPosition = player.getPosition().z;
+        float oponentLastPosition = circuit.getRoadLength();
+        if (network)
+            oponentLastPosition = oponent.getPosition().z;
         player.update(dt, dx);
         player.updateX(playerSegment.getCurve(), dx);
         if (network) {
@@ -472,20 +482,41 @@ public class GamePanel extends JPanel implements Runnable {
         
         lastSegment = playerSegment;
         
-        
-        
+        if (network)System.out.println(oponentLastPosition + " "+oponent.getMaxSpeed() + " " + oponent.getPosition().z);
+        if (network && (oponentLastPosition - oponent.getMaxSpeed() > oponent.getPosition().z)) {
+            oponentLap++;
+        }
         if (playerLastPosition - player.getMaxSpeed()> player.getPosition().z) {
             lap++;
             if (fastestLap < 0 || lapSeconds < fastestLap) {
                 fastestLap = lapSeconds;
-                infoPanel.updateFastestLapCounter();
+                infoPanel.updateFastestLapCounter();                
             }
+            if (network)
+                ((MultiplayerInfoPanel) infoPanel).updateLapInfo(lap, numberOfLaps);
             lapSeconds = 0;
         }
         else {
             lapSeconds += 1.0 / FRAMES_PER_SECOND;
         }
-        
+        if (network) {
+            if (this.lap == numberOfLaps) {
+                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, true);
+                infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+                infoDialog.setLocationRelativeTo(this);
+                infoDialog.setVisible(true);
+            }
+            if (this.oponentLap == numberOfLaps) {
+                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, false);
+                infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+                infoDialog.setLocationRelativeTo(this);
+                infoDialog.setVisible(true);
+            }
+            boolean ahead = (lap > oponentLap ||
+                    (lap == oponentLap && player.getPosition().z >= oponent.getPosition().z));
+
+            ((MultiplayerInfoPanel) infoPanel).updatePosition(ahead);
+        }
         infoPanel.update();
     }
     

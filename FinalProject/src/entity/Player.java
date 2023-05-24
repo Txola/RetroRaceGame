@@ -82,6 +82,8 @@ public class Player extends Vehicle{
         if (colidedWithSprite)
             colidedWithSprite = false;
         
+        if (getPosition().z > circuit.getRoadLength())
+            getPosition().z -= circuit.getRoadLength();
         
     }
     

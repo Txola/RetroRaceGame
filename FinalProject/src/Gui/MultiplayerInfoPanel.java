@@ -51,6 +51,14 @@ public class MultiplayerInfoPanel extends JPanel implements InfoPanel{
         playingPanel.updateFastestLapCounter();
     }
     
+    public void updateLapInfo(int lap, int numberOfLaps) {
+        playingPanel.updateLapInfo(lap, numberOfLaps);
+    }
+    
+    public void updatePosition(boolean ahead) {
+        playingPanel.updatePosition(ahead);
+    }
+    
     public void changePanel() {
         CardLayout cl = (CardLayout) getLayout();
         cl.next(this);
