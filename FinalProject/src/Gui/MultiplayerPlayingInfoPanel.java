@@ -36,8 +36,14 @@ public class MultiplayerPlayingInfoPanel extends javax.swing.JPanel {
         fastLapTime = new javax.swing.JTextField();
         lapTimer = new javax.swing.JTextField();
         leaveGameButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
+        setMaximumSize(new java.awt.Dimension(1024, 91));
+        setMinimumSize(new java.awt.Dimension(1024, 91));
         setOpaque(false);
+        setPreferredSize(new java.awt.Dimension(1024, 91));
 
         velocimeter.setEditable(false);
         velocimeter.setBackground(new java.awt.Color(141, 141, 141));
@@ -73,6 +79,11 @@ public class MultiplayerPlayingInfoPanel extends javax.swing.JPanel {
         lapTimer.setRequestFocusEnabled(false);
         lapTimer.setSelectionColor(new Color(0,0, 0, 0));
         lapTimer.setVerifyInputWhenFocusTarget(false);
+        lapTimer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lapTimerActionPerformed(evt);
+            }
+        });
 
         leaveGameButton.setBackground(new java.awt.Color(141, 141, 141));
         leaveGameButton.setFont(new java.awt.Font("URW Gothic L", 1, 18)); // NOI18N
@@ -85,37 +96,56 @@ public class MultiplayerPlayingInfoPanel extends javax.swing.JPanel {
             }
         });
 
+        jLabel1.setText("Lap Time");
+
+        jLabel2.setText("Speed");
+
+        jLabel3.setText("Fastest Lap");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(velocimeter, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(velocimeter, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
                 .addGap(36, 36, 36)
-                .addComponent(fastLapTime, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(194, 194, 194)
-                .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 274, Short.MAX_VALUE)
-                .addComponent(leaveGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fastLapTime, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(196, 196, 196)
+                        .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(216, 216, 216)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 305, Short.MAX_VALUE)
+                        .addComponent(leaveGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(leaveGameButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(velocimeter, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                            .addComponent(fastLapTime))))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(velocimeter, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
+                    .addComponent(fastLapTime))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(0, 13, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(leaveGameButton, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -124,6 +154,10 @@ public class MultiplayerPlayingInfoPanel extends javax.swing.JPanel {
         mainPanel.getGameFrame().goToMenu(mainPanel.getGamePanel());
         mainPanel.getGamePanel().finish();
     }//GEN-LAST:event_leaveGameButtonActionPerformed
+
+    private void lapTimerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lapTimerActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lapTimerActionPerformed
 
     public void update() {
         updateCounter(lapTimer, mainPanel.getGamePanel().getLapSeconds());
@@ -157,6 +191,9 @@ public class MultiplayerPlayingInfoPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField fastLapTime;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField lapTimer;
     private javax.swing.JButton leaveGameButton;
     private javax.swing.JTextField velocimeter;

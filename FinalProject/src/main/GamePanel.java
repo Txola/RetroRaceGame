@@ -77,6 +77,7 @@ public class GamePanel extends JPanel implements Runnable {
     private int lap;
     private float lapSeconds;
     private float fastestLap;
+    private int numberOfLaps;
 
     public Camera getCamera() {
         return camera;
@@ -114,7 +115,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     
     
-    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows, String name) {
+    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows, String name, int numberOfLaps) {
+        if (network && host)
+            this.numberOfLaps = numberOfLaps;
         this.gameFrame = gameFrame;
         this.network = network;
         this.host = host;
@@ -265,7 +268,7 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 }
                 outToSocket.writeUTF(spritesString.toString());
-                outToSocket.writeUTF(player + "\n" + name);
+                outToSocket.writeUTF(player + "\n" + name + "\n" + numberOfLaps);
                 String[] lines = inFromSocket.readUTF().split("\n");
                 oponent = lines[0];
                 oponentName = lines[1];
@@ -278,6 +281,7 @@ public class GamePanel extends JPanel implements Runnable {
                 String[] lines = inFromSocket.readUTF().split("\n");
                 oponent = lines[0];
                 oponentName = lines[1];
+                numberOfLaps = Integer.parseInt(lines[2]);
             }
             final String[] parts = oponent.split(" ");
             this.oponent = new Player(new Coordinate3D(
