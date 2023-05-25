@@ -10,12 +10,13 @@ package main;
  * @author txola
  */
 public class KeyInputStatus {
-    public Boolean up, right, left;
+    public Boolean up, down, right, left;
 
     public KeyInputStatus() {
         this.up = false;
         this.right = false;
         this.left = false;
+        this.down = false;
     }
     
         public void updateState(String state) {
@@ -25,13 +26,16 @@ public class KeyInputStatus {
             up = true;
         else 
             up = false;
-        
         if (parts[1].equals("true"))
+            down = true;
+        else
+            down = false;
+        if (parts[2].equals("true"))
             left = true;
         else 
             left = false;
         
-        if (parts[2].equals("true"))
+        if (parts[3].equals("true"))
             right = true;
         else 
             right = false;
@@ -39,10 +43,10 @@ public class KeyInputStatus {
     
     @Override
     public String toString() {
-        return (up + " " + left + " " + right);
+        return (up + " " + down + " " + left + " " + right);
     }
     
     public void restart() {
-        up = right = left = false;
+        up = down = right = left = false;
     }
 }

@@ -27,6 +27,9 @@ public class KeyInputHandler extends KeyInputStatus implements KeyListener {
             case KeyEvent.VK_UP:
                 up = true;
                 break;
+            case KeyEvent.VK_DOWN:
+                down = true;
+                break;
             case KeyEvent.VK_LEFT:
                 left = true;
                 break;
@@ -41,6 +44,9 @@ public class KeyInputHandler extends KeyInputStatus implements KeyListener {
         switch(e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 up = false;
+                break;
+            case KeyEvent.VK_DOWN:
+                down = false;
                 break;
             case KeyEvent.VK_LEFT:
                 left = false;
