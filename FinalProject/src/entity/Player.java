@@ -53,16 +53,24 @@ public class Player extends Vehicle{
     
     public void update(double dt, float dx) {
         if (input.up && !colidedWithSprite) {
-            speed += 30;
+            speed += 1800 * dt;
         }
         else {
-            if (speed >= 15) {
-                speed -= 15;
+            if (speed >= 900 * dt) {
+                speed -= 900 * dt;
             }
+            else
+                speed = 0;
         }
+        
         if (input.down) {
-            speed -= 50;
+            if (speed >= 3000 * dt) {
+                speed -= 3000 * dt;
+            }
+            else 
+                speed = 0;
         }
+
         if (input.left) {
             getPosition().x -= colidedWithSprite ? dx * 0.1 : dx * (speed)/maxSpeed;
         }
@@ -73,9 +81,9 @@ public class Player extends Vehicle{
             speed = maxSpeed;
         }
         getPosition().z += speed * dt;
+        
         if (Math.abs(getPosition().x) > getCircuit().getRoadWidth()) {
-            //System.out.println("kalsdjfasjdfkñlasjdfasklñ");
-            speed -= (speed / getMaxSpeed()) * 100;
+            speed -= (speed / getMaxSpeed()) * 6000 * dt;
             if (speed < 0) speed = 0;
         }
         
@@ -88,7 +96,7 @@ public class Player extends Vehicle{
     }
     
     public void updateX(float curve, float dx) {
-        float inc = (float) (curve * dx * (speed / maxSpeed)*(speed / maxSpeed) * 0.1);
+        float inc = (float) (curve * dx * (speed / maxSpeed)*(speed / maxSpeed) * 0.11);
         if (speed > 0 && !colidedWithSprite)
             getPosition().x += inc;
     }

@@ -53,10 +53,9 @@ import javax.swing.SwingConstants;
  */
 
 public class GamePanel extends JPanel implements Runnable {
-    final int FRAMES_PER_SECOND = 60;
-    final int RUMBLESTRIP_WIDTH = 400;
-    final int NUMBER_OF_SEGMENTS = 800;
-    final int SEGMENT_LENGTH = 250;
+    private final int RUMBLESTRIP_WIDTH = 400;
+    private final int NUMBER_OF_SEGMENTS = 800;
+    private final int SEGMENT_LENGTH = 250;
     private int roadWidth = 2500;
     private GameFrame gameFrame;
     private boolean pause = true;
@@ -71,6 +70,8 @@ public class GamePanel extends JPanel implements Runnable {
     private List<Entity> sprites;
     private List<Vehicle> vehicles;
     private InfoPanel infoPanel;
+    private int fps = 60;
+
     
     private boolean network, host;
     private ServerSocket hostSocket;
@@ -85,8 +86,12 @@ public class GamePanel extends JPanel implements Runnable {
         return camera;
     }
 
-    public int getFRAMES_PER_SECOND() {
-        return FRAMES_PER_SECOND;
+    public void setFPS(int fps) {
+        this.fps = fps;
+    }
+
+    public int getFPS() {
+        return fps;
     }
 
     public Player getPlayer() {
@@ -120,7 +125,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     
     
-    public GamePanel(GameFrame gameFrame, boolean network, boolean host, boolean arrows, String name, int numberOfLaps) {
+    public GamePanel(GameFrame gameFrame, boolean network, boolean host, String name, int numberOfLaps) {
         if (network && host)
             this.numberOfLaps = numberOfLaps;
         this.gameFrame = gameFrame;
@@ -138,7 +143,7 @@ public class GamePanel extends JPanel implements Runnable {
         add((JPanel) infoPanel, BorderLayout.NORTH);
         
         
-        inputHandler = new KeyInputHandler(arrows);
+        inputHandler = new KeyInputHandler();
         keyInputStatus = new KeyInputStatus();
         if (network) oponentKeyInputStatus = new KeyInputStatus();
         addKeyListener(inputHandler);
@@ -153,13 +158,13 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (network) {
             if (host) 
-                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
+                player = new Player(new Coordinate3D(-roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 33), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
             else 
-                player = new Player(new Coordinate3D( roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
+                player = new Player(new Coordinate3D( roadWidth / 3, 0, 0), (float) (SEGMENT_LENGTH * 33), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
             if (!name.isEmpty() && name != null) player.setName(name);
         }
         else {
-            player = new Player(new Coordinate3D(0, 0, 0), (float) (SEGMENT_LENGTH * 0.55 * FRAMES_PER_SECOND), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
+            player = new Player(new Coordinate3D(0, 0, 0), (float) ((SEGMENT_LENGTH * 33)), keyInputStatus, circuit, ResourceManager.instance().get(0), false);
         }
         
         camera = new Camera();
@@ -215,8 +220,8 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
         final int timeUnitsPerSecond = 1000000000;
-        final double targetFrameTime = timeUnitsPerSecond / FRAMES_PER_SECOND;
-        final double deltaT = 1.0 / FRAMES_PER_SECOND;
+        double targetFrameTime = timeUnitsPerSecond / fps;
+        double deltaT = 1.0 / fps;
         double deltaTime = 0;
         double lastUpdateTime = System.nanoTime();
                 
@@ -227,6 +232,8 @@ public class GamePanel extends JPanel implements Runnable {
         if (!network)
             sprites.add(player);
         while (!network && !Thread.interrupted()) {
+            targetFrameTime = timeUnitsPerSecond / fps;
+            deltaT = 1.0 / fps;
             long currentTime = System.nanoTime();
             deltaTime += (currentTime - lastUpdateTime) / targetFrameTime;
 
@@ -406,7 +413,7 @@ public class GamePanel extends JPanel implements Runnable {
         backgroundCity.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())*prop));
         backgroundSky.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
         
-        float dx = roadWidth / (1 * FRAMES_PER_SECOND);
+        float dx = roadWidth / (1 * fps);
         float playerLastPosition = player.getPosition().z;
         float oponentLastPosition = circuit.getRoadLength();
         if (network)
@@ -482,6 +489,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         lastSegment = playerSegment;
         
+        //<editor-fold defaultstate="collapsed" desc="GUI update">
         if (network)System.out.println(oponentLastPosition + " "+oponent.getMaxSpeed() + " " + oponent.getPosition().z);
         if (network && (oponentLastPosition - oponent.getMaxSpeed() > oponent.getPosition().z)) {
             oponentLap++;
@@ -490,14 +498,14 @@ public class GamePanel extends JPanel implements Runnable {
             lap++;
             if (fastestLap < 0 || lapSeconds < fastestLap) {
                 fastestLap = lapSeconds;
-                infoPanel.updateFastestLapCounter();                
+                infoPanel.updateFastestLapCounter();
             }
             if (network)
                 ((MultiplayerInfoPanel) infoPanel).updateLapInfo(lap, numberOfLaps);
             lapSeconds = 0;
         }
         else {
-            lapSeconds += 1.0 / FRAMES_PER_SECOND;
+            lapSeconds += 1.0 / fps;
         }
         if (network) {
             if (this.lap == numberOfLaps) {
@@ -514,10 +522,11 @@ public class GamePanel extends JPanel implements Runnable {
             }
             boolean ahead = (lap > oponentLap ||
                     (lap == oponentLap && player.getPosition().z >= oponent.getPosition().z));
-
+            
             ((MultiplayerInfoPanel) infoPanel).updatePosition(ahead);
         }
         infoPanel.update();
+//</editor-fold>
     }
     
     private void initMultiplayer() {
@@ -569,7 +578,7 @@ public class GamePanel extends JPanel implements Runnable {
         pause = false;
     }
     private void loadVehicles() {
-        final float maxSpeed = (float) (SEGMENT_LENGTH * 0.4 * FRAMES_PER_SECOND);
+        final float maxSpeed = (float) (SEGMENT_LENGTH * 24);
         final int frequency = 15;
         final int minimumSeparation = 3;
         for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
