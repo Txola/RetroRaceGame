@@ -27,7 +27,6 @@ public class Camera {
     }
     
     public void updateHeight(float y) {
-        System.out.println(position.y);
         float dy = y - position.y;
         position.y = y;
         float dz = (position.y * distanceToPlayer) / (position.y - dy) - distanceToPlayer;
@@ -35,10 +34,13 @@ public class Camera {
     }
     
     public void updateFieldOfView(float z) {
+        float previousHeight = position.y;
+        updateHeight(1200);
         float dz = z - distanceToPlayer;
         position.z -= dz;
         distanceToPlayer += dz;
         distanceToPlane = distanceToPlayer / position.y;
+        updateHeight(previousHeight);
     }
     
     public void updateDistanceToPlayer(float z) {

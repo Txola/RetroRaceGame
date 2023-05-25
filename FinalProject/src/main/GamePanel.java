@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 //</editor-fold>
@@ -54,7 +55,7 @@ import javax.swing.SwingConstants;
 
 public class GamePanel extends JPanel implements Runnable {
     private final int RUMBLESTRIP_WIDTH = 400;
-    private final int NUMBER_OF_SEGMENTS = 800;
+    private final int NUMBER_OF_SEGMENTS = 1000;
     private final int SEGMENT_LENGTH = 250;
     private int roadWidth = 2500;
     private GameFrame gameFrame;
@@ -125,7 +126,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     
     
-    public GamePanel(GameFrame gameFrame, boolean network, boolean host, String name, int numberOfLaps) {
+    public GamePanel(GameFrame gameFrame, boolean network, boolean host, String ip, String name, int numberOfLaps) {
+        gameThread = new Thread(this);
         if (network && host)
             this.numberOfLaps = numberOfLaps;
         this.gameFrame = gameFrame;
@@ -177,10 +179,9 @@ public class GamePanel extends JPanel implements Runnable {
         
         if (network) {
             oponentLap = 0;
-            initMultiplayer();
+            initMultiplayer(ip);
         }
 
-        gameThread = new Thread(this);
         gameThread.start();
 
     }
@@ -227,6 +228,11 @@ public class GamePanel extends JPanel implements Runnable {
                 
         long frameCounter = 0;
         long countStartTime = System.nanoTime();
+        if (interruption) {
+            gameFrame.goToMenu(this);
+            JOptionPane.showMessageDialog(null, "There is not a host connected in that ip!", "Hey!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         //<editor-fold defaultstate="collapsed" desc="singlePlayer loop">
         if (!network)
@@ -456,8 +462,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
         
         
-        
-        
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();
@@ -487,7 +491,6 @@ public class GamePanel extends JPanel implements Runnable {
         lastSegment = playerSegment;
         
         //<editor-fold defaultstate="collapsed" desc="GUI update">
-        if (network)System.out.println(oponentLastPosition + " "+oponent.getMaxSpeed() + " " + oponent.getPosition().z);
         if (network && (oponentLastPosition - oponent.getMaxSpeed() > oponent.getPosition().z)) {
             oponentLap++;
         }
@@ -526,7 +529,7 @@ public class GamePanel extends JPanel implements Runnable {
 //</editor-fold>
     }
     
-    private void initMultiplayer() {
+    private void initMultiplayer(String ip) {
         Thread accept = new Thread( new Runnable() {
             @Override
             public void run() {
@@ -551,9 +554,9 @@ public class GamePanel extends JPanel implements Runnable {
         }
         else {
             try {
-                joinSocket = new Socket("localhost", 10000);
+                joinSocket = new Socket(ip, 10000);
             } catch (IOException ex) {
-                Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+                interruption = true;
             }
         }
     }
@@ -579,14 +582,14 @@ public class GamePanel extends JPanel implements Runnable {
         final int frequency = 15;
         final int minimumSeparation = 3;
         for (int i = 0; i < NUMBER_OF_SEGMENTS - frequency; i += frequency) {
-        float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
-        float x = Utils.uniform(-roadWidth + roadWidth / 5, roadWidth - roadWidth / 5);
-        Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, ResourceManager.instance().getRandomVehicleImage());
-        vehicles.add(vehicle);
-        sprites.add(vehicle);
+            float z = Utils.uniform(i * SEGMENT_LENGTH, (i + frequency - minimumSeparation) *SEGMENT_LENGTH);
+            float x = Utils.uniform(-roadWidth + roadWidth / 5, roadWidth - roadWidth / 5);
+            Vehicle vehicle = new Vehicle(new Coordinate3D(x, 0, z), maxSpeed, circuit, ResourceManager.instance().getRandomVehicleImage());
+            vehicles.add(vehicle);
+            sprites.add(vehicle);
         }
         for (Vehicle vehicle : vehicles) {
-        vehicle.setSpeed(maxSpeed * Utils.uniform((float) 0.5, 1));
+            vehicle.setSpeed(maxSpeed * Utils.uniform((float) 0.5, 1));
         }
     }
     

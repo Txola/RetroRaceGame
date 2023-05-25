@@ -26,7 +26,20 @@ public class ResourceManager {
         images.add(new Image("src/resources/audi.png", (float) 0.55, 1));
         images.add(new Image("src/resources/kia.png", (float) 0.7, 1));
         images.add(new Image("src/resources/escarabajo.png", (float) 1.25, 1));
+        images.add(new Image("src/resources/bmwm5.png", (float) 0.9, 1));
+        images.add(new Image("src/resources/van.png", (float) 2.8, 1));
+        images.add(new Image("src/resources/camioneta.png", (float) 0.6, 1));
+        
+        
+        
+        
+        
+        
+        
         images.add(new Image("src/resources/Tree.png", 10, (float) 0.1));
+        
+        
+        images.add(new Image("src/resources/finishFlag.png", (float) 1.7, 0));
     }
     
     public int getIndexOf(Image image) {
@@ -34,7 +47,7 @@ public class ResourceManager {
     }
 
     public Image getRandomVehicleImage() {
-        return images.get((int) Utils.uniform(1, 7));
+        return images.get((int) Utils.uniform(1, 10));
     }
     
     public Image get(int index){

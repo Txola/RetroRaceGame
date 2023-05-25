@@ -100,8 +100,10 @@ public class Circuit {
 //</editor-fold>
     
     public void addSprites(List<Entity> sprites) {
-        Image image = ResourceManager.instance().get(7);
-        for (int i = 1; i <= 80; i++) {
+        Image image = ResourceManager.instance().get(10);
+        sprites.add(new Entity(new Coordinate3D(roadWidth + 2 * rumblestripWidth, 0, 0), this, ResourceManager.instance().get(11)));
+        sprites.add(new Entity(new Coordinate3D(-(roadWidth + 2 * rumblestripWidth), 0, 0), this, ResourceManager.instance().get(11)));
+        for (int i = 2; i * 2400 <= roadLength - 2400; i++) {
             sprites.add(new Entity(new Coordinate3D(roadWidth + 4 * rumblestripWidth, 0, i * 2400), this, image));
             sprites.add(new Entity(new Coordinate3D(-(roadWidth + 4 * rumblestripWidth), 0, i * 2400), this, image));
         }
@@ -112,24 +114,18 @@ public class Circuit {
     
     private final void createRoadSegments() {
         roadSegments = new ArrayList<>();
-        final int unit = numberOfSegments / 64;
-        //addRoadSection(0, 0, 0, numberOfSegments, 0);
-        /*addRoadSection(7000, 0, unit, 2 * unit, 1 *unit);
-        addRoadSection(0, 5,  2 *unit, 9 * unit, 2*unit);
-        addRoadSection(0, 0, 2 * unit, 0, 0);
-        addRoadSection(7000, 0, 2 * unit, unit, unit);
-        addRoadSection(3000, 0, 3 * unit, 0, 0);
-        addRoadSection(3000, 0, 2 * unit, 0, 0);
-        addRoadSection(0, -8, 2 * unit, 2 *unit, unit);
-        addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);*/
-        addRoadSection(7000, 0, 2*unit, 2 * unit, 2*unit);
+        final int unit = numberOfSegments / 82;
+
+        addRoadSection(13000, 0, 2*unit, 4 * unit, 2*unit);
         addRoadSection(0, 5,  2 *unit, 9 * unit, 2*unit);
         addRoadSection(0, 0, 4 * unit, 0, 0);
         addRoadSection(0, -8, 2 * unit, 3*unit, 2*unit);
-        addRoadSection(7000, 0, 2 * unit, unit, 3*unit);
+        addRoadSection(7000, 0, 2 * unit, 2 * unit, 3*unit);
         addRoadSection(0, -5,  2 *unit, 9 * unit, 2*unit);
         addRoadSection(3000, 0, 4 * unit, 0, 0);
-        addRoadSection(3000, 8, 2 * unit, 3*unit, 2*unit); //60 units        
+        addRoadSection(3000, 8, 2 * unit, 3*unit, 2*unit);  
+        addRoadSection(-8500, -6, 2 * unit, 5 * unit, 2 * unit);
+        addRoadSection(0, 6, 2 * unit, 5 * unit, 2 * unit);
         addRoadSection(0, 0, numberOfSegments - roadSegments.size(), 0, 0);
     }
     
@@ -208,6 +204,7 @@ public class Circuit {
                 int x2 = Math.round(previousPoint.getXWorld() + prevWidth);
                 int x3 = Math.round(currentPoint.getXWorld() + currWidth);
                 int x4 = Math.round(currentPoint.getXWorld() - currWidth);
+                          
                 setTextureColor(g2, colors[0], colors[1], i, 1);
                 drawPolygon(g2, x1, x2, x3, x4, (int) previousPoint.getYWorld(),
                         (int) currentPoint.getYWorld());

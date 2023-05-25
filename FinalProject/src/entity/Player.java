@@ -96,7 +96,7 @@ public class Player extends Vehicle{
         synchronized(sprites) {
             for (Entity sprite : sprites) {
                 if (sprite != this) {
-                    Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z);
+                    Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z % getCircuit().getRoadLength());
                     if (vehicleSegment == playerSegment) {
 
                         if ((!(sprite instanceof Vehicle) || getSpeed() >=

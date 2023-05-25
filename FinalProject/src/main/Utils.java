@@ -19,6 +19,8 @@ public class Utils {
     }
     
     static public boolean overlap(double position1, double width1, double position2, double width2) {
+        if (width1 == 0 || width2 == 0)
+            return false;
         double min1 = position1 - width1/2;
         double max1 = position1 + width1/2;
         double min2 = position2 - width2/2;

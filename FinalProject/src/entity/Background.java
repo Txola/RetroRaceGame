@@ -37,18 +37,14 @@ public class Background {
     }
     
     public void updateImageOffset(int curve) {
-        //System.out.println(curve);
         imageOffset += curve;
     }
     public void updateOffset(int curve) {
         offset = (int) curve;
-        //System.out.println(offset);
     }
     
     public void draw(Graphics2D g2, int screenWidth, int screenHeight) {
-        //System.out.println(imageOffset);
         g2.drawImage(image, 0, yOffset, screenWidth, (int) (screenHeight / 1.8), imageOffset + offset, 0, image.getWidth() / 8 +imageOffset + offset, image.getHeight(), null);
-        //g2.drawImage(image, 0, 170, 1400, 240, null);
     }
 
     
