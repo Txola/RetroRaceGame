@@ -10,21 +10,23 @@ import java.awt.Font;
 import static java.awt.Font.BOLD;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import main.Camera;
 import main.Coordinate3D;
 import main.Circuit;
 import main.KeyInputStatus;
 import main.Point;
 import main.Segment;
+import main.Utils;
 
 /**
  *
  * @author txola
  */
 public class Player extends Vehicle{
-    KeyInputStatus input;
-    public boolean colidedWithSprite;
-    String name;
+    private KeyInputStatus input;
+    private boolean colided;
+    private String name;
     boolean displayName;
 
     public Player(Coordinate3D position, float maxSpeed, KeyInputStatus input, Circuit circuit, Image image, boolean displayName) {
@@ -51,8 +53,8 @@ public class Player extends Vehicle{
     }
     
     
-    public void update(double dt, float dx) {
-        if (input.up && !colidedWithSprite) {
+    public void update(double dt, float dx, List<Entity> sprites) {
+        if (input.up && !colided) {
             speed += 1800 * dt;
         }
         else {
@@ -72,10 +74,10 @@ public class Player extends Vehicle{
         }
 
         if (input.left) {
-            getPosition().x -= colidedWithSprite ? dx * 0.1 : dx * (speed)/maxSpeed;
+            getPosition().x -= colided ? dx * 0.1 : dx * (speed)/maxSpeed;
         }
         if (input.right) {
-            getPosition().x += colidedWithSprite ? dx * 0.1 : dx * (speed)/maxSpeed;
+            getPosition().x += colided ? dx * 0.1 : dx * (speed)/maxSpeed;
         }
         if (speed > maxSpeed) {
             speed = maxSpeed;
@@ -87,8 +89,36 @@ public class Player extends Vehicle{
             if (speed < 0) speed = 0;
         }
         
-        if (colidedWithSprite)
-            colidedWithSprite = false;
+        if (colided)
+            colided = false;
+        
+        Segment playerSegment = circuit.getCurrentSegment(this.getPosition().z % getCircuit().getRoadLength());
+        for (Entity sprite : sprites) {
+            if (sprite != this) {
+                Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z);
+                if (vehicleSegment == playerSegment) {
+
+                    if ((!(sprite instanceof Vehicle) || getSpeed() >=
+                            ((Vehicle) sprite).getSpeed()) && Utils.overlap(getPointX(),
+                                    getImageWidth()* getImage().getHitBox(),
+                                    sprite.getPointX(),
+                                    sprite.getImageWidth() * sprite.getImage().getHitBox())) {
+
+                        if (!(sprite instanceof Vehicle)) {
+                            this.colided = true;
+                            this.setSpeed(0);
+                        }
+                        else {
+                            this.setSpeed(((Vehicle) sprite).getSpeed() / 2);
+                            this.colided = true;
+                        }
+
+                        getPosition().z -= speed * dt;
+                    }
+                }
+            }
+        }
+        
         
         if (getPosition().z > circuit.getRoadLength())
             getPosition().z -= circuit.getRoadLength();
@@ -97,7 +127,7 @@ public class Player extends Vehicle{
     
     public void updateX(float curve, float dx) {
         float inc = (float) (curve * dx * (speed / maxSpeed)*(speed / maxSpeed) * 0.11);
-        if (speed > 0 && !colidedWithSprite)
+        if (speed > 0 && !colided)
             getPosition().x += inc;
     }
     

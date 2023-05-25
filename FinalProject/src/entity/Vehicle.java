@@ -30,9 +30,7 @@ public class Vehicle extends Entity {
     }
 
     
-    public void restart() {
-        getPosition().z = 0;
-    }
+
     
     public float getMaxSpeed() {
         return maxSpeed;
@@ -66,13 +64,18 @@ public class Vehicle extends Entity {
             direction = vehicle.getPosition().x > this.getPosition().x ? -1 : 1;
 
         float percent = (reactionDistance - getDistanceToVehicleInFront(vehicle)) / reactionDistance;
-        float vel = (float) Utils.easeInOut(0, 12000, percent) * ((speed - vehicle.getSpeed()) / maxSpeed);
+        float vel = (float) Utils.easeInOut(0, (int) (700000 * dt),
+                percent) * ((speed - vehicle.getSpeed()) / maxSpeed);
         this.getPosition().x += direction * vel * dt;
     }
     
       
     public void update(double dt, List<Vehicle> vehicles, Player player) {
         getPosition().z  += dt * speed;
+        if (getPosition().z > circuit.getRoadLength())
+            getPosition().z -= circuit.getRoadLength();
+        
+        
         final int reactionDistance = 15 * getCircuit().getSegmentLenght();
         int vehicleIndex = vehicles.indexOf(this);
         
@@ -93,20 +96,14 @@ public class Vehicle extends Entity {
             }
         }
         if (this.getPosition().x > getCircuit().getRoadWidth() - getCircuit().getRoadWidth() / 6) {
-            this.getPosition().x -= (getCircuit().getRoadWidth() / 20);
+            this.getPosition().x -= (getCircuit().getRoadWidth() * 3 * dt);
         }
         if (this.getPosition().x < -getCircuit().getRoadWidth() + getCircuit().getRoadWidth() / 6) {
-            this.getPosition().x += (getCircuit().getRoadWidth() / 20);
+            this.getPosition().x += (getCircuit().getRoadWidth() * 3 * dt);
         }
     }
     
-    @Override
-    public boolean draw(Graphics2D g2, int screenWidth, int screenHeight, Camera camera) {
-        if (getPosition().z > circuit.getRoadLength()) {
-            restart();
-        }
-        return super.draw(g2, screenWidth, screenHeight, camera);
-    }
+    
     
     @Override
     public String toString() {

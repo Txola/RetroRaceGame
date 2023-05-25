@@ -413,18 +413,6 @@ public class GamePanel extends JPanel implements Runnable {
         backgroundCity.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())*prop));
         backgroundSky.updateOffset((int) (-playerSegment.getCurveAmount(camera.getPosition().z + camera.getDistanceToPlayer())/prop2));
         
-        float dx = roadWidth / (1 * fps);
-        float playerLastPosition = player.getPosition().z;
-        float oponentLastPosition = circuit.getRoadLength();
-        if (network)
-            oponentLastPosition = oponent.getPosition().z;
-        player.update(dt, dx);
-        player.updateX(playerSegment.getCurve(), dx);
-        if (network) {
-            Segment oponentSegment = circuit.getCurrentSegment(oponent.getPosition().z % circuit.getRoadLength());
-            oponent.update(dt, dx);
-            oponent.updateX(oponentSegment.getCurve(), dx);
-        }
         
         
         if (network) {
@@ -447,27 +435,30 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
         
+        
+        float dx = roadWidth / (1 * fps);
+        float playerLastPosition = player.getPosition().z;
+        float oponentLastPosition = circuit.getRoadLength();
+        if (network)
+            oponentLastPosition = oponent.getPosition().z;
+        player.update(dt, dx, sprites);
+        player.updateX(playerSegment.getCurve(), dx);
+        if (network) {
+            Segment oponentSegment = circuit.getCurrentSegment(oponent.getPosition().z);
+            oponent.update(dt, dx, sprites);
+            oponent.updateX(oponentSegment.getCurve(), dx);
+        }
+        
+        
+        
+        
         camera.update(player.getPosition());
         if (camera.getPosition().z >= circuit.getRoadLength() - camera.getDistanceToPlayer()) {
             camera.restart();
-            player.restart();
+            player.getPosition().z = 0;
         }
   
-        synchronized(sprites) {
-            for (Entity sprite : sprites) {
-                Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z % circuit.getRoadLength());
-                if (vehicleSegment == playerSegment) {
-                    if ((!(sprite instanceof Vehicle) || player.getSpeed() > ((Vehicle) sprite).getSpeed()) && Utils.overlap(player.getPointX(), player.getImageWidth()* player.getImage().getHitBox(), sprite.getPointX(), sprite.getImageWidth() * sprite.getImage().getHitBox())) {
-                        if (!(sprite instanceof Vehicle)) {
-                            player.colidedWithSprite = true;
-                            player.setSpeed(0);
-                        }
-                        else
-                            player.setSpeed(((Vehicle) sprite).getSpeed()/6);
-                    }
-                }
-            }
-        }
+        
         if (network && !host) {
             synchronized (vehicles) {
                 for (Vehicle vehicle : vehicles) {
@@ -537,7 +528,7 @@ public class GamePanel extends JPanel implements Runnable {
                     hostSocket = new ServerSocket(10000);
                     joinSocket = hostSocket.accept();
                     lapSeconds = fastestLap = lap = 0;
-                    player.restart();
+                    player.getPosition().z = 0;
                     player.getPosition().x = -roadWidth / 3;
                     keyInputStatus.restart();
                     player.setSpeed(0);

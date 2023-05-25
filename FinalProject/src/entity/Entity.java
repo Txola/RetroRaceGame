@@ -111,7 +111,7 @@ public class Entity implements Serializable{
         if (position.z > camera.getPosition().z + circuit.getSegmentLenght() && (currentIndex - baseIndex) < circuit.getNumberOfVisibleSegments() ||
                 (looped && ((circuit.getNumberOfSegments() - baseIndex + currentIndex) < circuit.getNumberOfVisibleSegments()) ))  {
             
-            Segment currentSegment = circuit.getCurrentSegment(position.z % circuit.getRoadLength()); //fix
+            Segment currentSegment = circuit.getCurrentSegment(position.z);
             Segment baseSegment = circuit.getCurrentSegment(camera.getPosition().z + camera.getDistanceToPlayer());
             float offsetY = currentSegment.getYOffset(position.z) - baseSegment.getYOffset(camera.getPosition().z + camera.getDistanceToPlayer());
             Point point = new Point(position);
