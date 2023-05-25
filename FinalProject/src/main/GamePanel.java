@@ -61,11 +61,11 @@ public class GamePanel extends JPanel implements Runnable {
     private GameFrame gameFrame;
     private boolean pause = true;
     private Thread gameThread;
-    private KeyInputStatus keyInputStatus, oponentKeyInputStatus;
+    private KeyInputStatus keyInputStatus, opponentKeyInputStatus;
     private KeyInputHandler inputHandler;
     private Circuit circuit;
     private Camera camera;
-    private Player player, oponent;
+    private Player player, opponent;
     private Background backgroundCity, backgroundSky;
     private Segment lastSegment;
     private List<Entity> sprites;
@@ -81,7 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
     private float lapSeconds;
     private float fastestLap;
     private int numberOfLaps;
-    private int oponentLap;
+    private int opponentLap;
 
     public Camera getCamera() {
         return camera;
@@ -147,7 +147,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         inputHandler = new KeyInputHandler();
         keyInputStatus = new KeyInputStatus();
-        if (network) oponentKeyInputStatus = new KeyInputStatus();
+        if (network) opponentKeyInputStatus = new KeyInputStatus();
         addKeyListener(inputHandler);
         setFocusable(true);
         requestFocus();
@@ -178,7 +178,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
         
         if (network) {
-            oponentLap = 0;
+            opponentLap = 0;
             initMultiplayer(ip);
         }
 
@@ -274,7 +274,7 @@ public class GamePanel extends JPanel implements Runnable {
         try (
             DataInputStream inFromSocket = new DataInputStream(joinSocket.getInputStream());
             DataOutputStream outToSocket = new DataOutputStream(joinSocket.getOutputStream());) {
-            String oponent, oponentName;
+            String opponent, opponentName;
             String name = player.getName();
             if (name == null)
                 name = " ";
@@ -289,8 +289,8 @@ public class GamePanel extends JPanel implements Runnable {
                 outToSocket.writeUTF(spritesString.toString());
                 outToSocket.writeUTF(player + "\n" + name + "\n" + numberOfLaps);
                 String[] lines = inFromSocket.readUTF().split("\n");
-                oponent = lines[0];
-                oponentName = lines[1];
+                opponent = lines[0];
+                opponentName = lines[1];
 
             }
             else {
@@ -298,25 +298,25 @@ public class GamePanel extends JPanel implements Runnable {
                 parseEntities(entities);
                 outToSocket.writeUTF(player + "\n" + name);
                 String[] lines = inFromSocket.readUTF().split("\n");
-                oponent = lines[0];
-                oponentName = lines[1];
+                opponent = lines[0];
+                opponentName = lines[1];
                 numberOfLaps = Integer.parseInt(lines[2]);
             }
-            final String[] parts = oponent.split(" ");
-            this.oponent = new Player(new Coordinate3D(
+            final String[] parts = opponent.split(" ");
+            this.opponent = new Player(new Coordinate3D(
                     Float.parseFloat(parts[1]),
                     Float.parseFloat(parts[2]),
                     Float.parseFloat(parts[3])),
                     Float.parseFloat(parts[4]),
-                    oponentKeyInputStatus,
+                    opponentKeyInputStatus,
                     circuit,
                     ResourceManager.instance().get(Integer.parseInt(parts[0])),
                     true);
-            if (!oponentName.equals(" "))
-                this.oponent.setName(oponentName);
+            if (!opponentName.equals(" "))
+                this.opponent.setName(opponentName);
             synchronized(sprites) {
                 sprites.add(this.player);
-                sprites.add(this.oponent);
+                sprites.add(this.opponent);
             }
             ((MultiplayerInfoPanel) infoPanel).updateLapInfo(lap, numberOfLaps);
             
@@ -357,8 +357,8 @@ public class GamePanel extends JPanel implements Runnable {
                             spritesString.append(keyInputStatus);
                             outToSocket.writeUTF(spritesString.toString());
                             String lines[] = inFromSocket.readUTF().split("\n");
-                            oponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
-                            this.oponent.updateState(lines[vehicles.size()]);
+                            opponentKeyInputStatus.updateState(lines[vehicles.size() + 1]);
+                            this.opponent.updateState(lines[vehicles.size()]);
                             updateVehicles(lines);
 
                         }
@@ -371,9 +371,9 @@ public class GamePanel extends JPanel implements Runnable {
                             outToSocket.writeUTF(spritesString.toString());
                             String vehicles = inFromSocket.readUTF();
                             String[] lines = vehicles.split("\\n");
-                            String oponentInputState = lines[this.vehicles.size() + 1];
-                            oponentKeyInputStatus.updateState(oponentInputState);
-                            this.oponent.updateState(lines[this.vehicles.size()]);
+                            String opponentInputState = lines[this.vehicles.size() + 1];
+                            opponentKeyInputStatus.updateState(opponentInputState);
+                            this.opponent.updateState(lines[this.vehicles.size()]);
                             synchronized (vehicles) {
                                 for (Vehicle vehicle : this.vehicles) {
                                     vehicle.updateLooped(camera.getPosition().z);
@@ -442,7 +442,7 @@ public class GamePanel extends JPanel implements Runnable {
                     vehicle.update(dt, vehicles, player);
                 }
                 else {
-                    vehicle.update(dt, vehicles, oponent);
+                    vehicle.update(dt, vehicles, opponent);
                 }
             }
         }
@@ -450,15 +450,15 @@ public class GamePanel extends JPanel implements Runnable {
         
         float dx = roadWidth / (1 * fps);
         float playerLastPosition = player.getPosition().z;
-        float oponentLastPosition = circuit.getRoadLength();
+        float opponentLastPosition = circuit.getRoadLength();
         if (network)
-            oponentLastPosition = oponent.getPosition().z;
+            opponentLastPosition = opponent.getPosition().z;
         player.update(dt, dx, sprites);
         player.updateX(playerSegment.getCurve(), dx);
         if (network) {
-            Segment oponentSegment = circuit.getCurrentSegment(oponent.getPosition().z);
-            oponent.update(dt, dx, sprites);
-            oponent.updateX(oponentSegment.getCurve(), dx);
+            Segment opponentSegment = circuit.getCurrentSegment(opponent.getPosition().z);
+            opponent.update(dt, dx, sprites);
+            opponent.updateX(opponentSegment.getCurve(), dx);
         }
         
         
@@ -472,7 +472,7 @@ public class GamePanel extends JPanel implements Runnable {
         if (network && !host) {
             synchronized (vehicles) {
                 for (Vehicle vehicle : vehicles) {
-                    vehicle.updateLooped(oponent.getPosition().z - camera.getDistanceToPlayer());
+                    vehicle.updateLooped(opponent.getPosition().z - camera.getDistanceToPlayer());
                 }
             }
         }
@@ -491,8 +491,8 @@ public class GamePanel extends JPanel implements Runnable {
         lastSegment = playerSegment;
         
         //<editor-fold defaultstate="collapsed" desc="GUI update">
-        if (network && (oponentLastPosition - oponent.getMaxSpeed() > oponent.getPosition().z)) {
-            oponentLap++;
+        if (network && (opponentLastPosition - opponent.getMaxSpeed() > opponent.getPosition().z)) {
+            opponentLap++;
         }
         if (playerLastPosition - player.getMaxSpeed()> player.getPosition().z) {
             lap++;
@@ -514,14 +514,14 @@ public class GamePanel extends JPanel implements Runnable {
                 infoDialog.setLocationRelativeTo(this);
                 infoDialog.setVisible(true);
             }
-            if (this.oponentLap == numberOfLaps) {
+            if (this.opponentLap == numberOfLaps) {
                 MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, 1);
                 infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
                 infoDialog.setLocationRelativeTo(this);
                 infoDialog.setVisible(true);
             }
-            boolean ahead = (lap > oponentLap ||
-                    (lap == oponentLap && player.getPosition().z >= oponent.getPosition().z));
+            boolean ahead = (lap > opponentLap ||
+                    (lap == opponentLap && player.getPosition().z >= opponent.getPosition().z));
             
             ((MultiplayerInfoPanel) infoPanel).updatePosition(ahead);
         }
@@ -628,16 +628,16 @@ public class GamePanel extends JPanel implements Runnable {
     private void updateVehicles(String[] lines) {
         for (int i = 0; i < this.vehicles.size(); i++) {
             Vehicle vehicle = vehicles.get(i);
-            if (oponent.getPosition().z == player.getPosition().z && !host)
+            if (opponent.getPosition().z == player.getPosition().z && !host)
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
             
-            else if (oponent.getPosition().z > player.getPosition().z &&
-                    (vehicle.getPosition().z > oponent.getPosition().z ||
+            else if (opponent.getPosition().z > player.getPosition().z &&
+                    (vehicle.getPosition().z > opponent.getPosition().z ||
                      vehicle.getPosition().z < player.getPosition().z)) {
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
             }
-            else if (oponent.getPosition().z < player.getPosition().z && 
-                    (vehicle.getPosition().z >= oponent.getPosition().z &&
+            else if (opponent.getPosition().z < player.getPosition().z && 
+                    (vehicle.getPosition().z >= opponent.getPosition().z &&
                     vehicle.getPosition().z < player.getPosition().z)) {
                 this.vehicles.get(i).getPosition().x = Float.parseFloat(lines[i]);
             }
