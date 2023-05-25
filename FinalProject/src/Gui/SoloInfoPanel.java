@@ -190,6 +190,7 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
 
     private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
         // TODO add your handling code here:
+        gamePanel.pauseOrResume();
         gamePanel.initPauseDialog();
     }//GEN-LAST:event_pauseButtonActionPerformed
 

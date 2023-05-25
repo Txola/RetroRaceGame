@@ -575,7 +575,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
     
     public void pauseOrResume() {
-        pause = false;
+        pause = !pause;
     }
     private void loadVehicles() {
         final float maxSpeed = (float) (SEGMENT_LENGTH * 24);
