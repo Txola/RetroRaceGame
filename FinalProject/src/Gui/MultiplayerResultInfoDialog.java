@@ -19,17 +19,21 @@ public class MultiplayerResultInfoDialog extends javax.swing.JDialog {
     /**
      * Creates new form MultiplayerResultInfoDialog
      */
-    public MultiplayerResultInfoDialog(GameFrame gameFrame, GamePanel gamePanel, boolean win) {
+    public MultiplayerResultInfoDialog(GameFrame gameFrame, GamePanel gamePanel, int messageIndex) {
         super(gameFrame);
         this.gamePanel = gamePanel;
         this.gameFrame = gameFrame;
         setUndecorated(true);
         initComponents();
-        if (win) {
+        if (messageIndex == 0) {
             text.setText("¡You Win!");
         }
-        else
+        else if (messageIndex == 1)
             text.setText("¡You Lose!");
+        else {
+            text.setFont(new java.awt.Font("URW Gothic L", 1, 18));
+            text.setText("Your oponent left the game.");
+        }
         repaint();
         
     }

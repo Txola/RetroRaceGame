@@ -73,7 +73,7 @@ public class GamePanel extends JPanel implements Runnable {
     private int fps = 60;
 
     
-    private boolean network, host;
+    private boolean network, host, interruption = false;
     private ServerSocket hostSocket;
     private Socket joinSocket;
     private int lap;
@@ -395,6 +395,12 @@ public class GamePanel extends JPanel implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex1);
             }
+            if (!interruption) {
+                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, 2);
+                infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+                infoDialog.setLocationRelativeTo(this);
+                infoDialog.setVisible(true);
+            }
         }
 //</editor-fold>
 
@@ -500,13 +506,13 @@ public class GamePanel extends JPanel implements Runnable {
         }
         if (network) {
             if (this.lap == numberOfLaps) {
-                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, true);
+                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, 0);
                 infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
                 infoDialog.setLocationRelativeTo(this);
                 infoDialog.setVisible(true);
             }
             if (this.oponentLap == numberOfLaps) {
-                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, false);
+                MultiplayerResultInfoDialog infoDialog = new MultiplayerResultInfoDialog(gameFrame, this, 1);
                 infoDialog.setModalityType(ModalityType.APPLICATION_MODAL);
                 infoDialog.setLocationRelativeTo(this);
                 infoDialog.setVisible(true);
@@ -644,6 +650,7 @@ public class GamePanel extends JPanel implements Runnable {
                 Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);                
             }
         }
+        interruption = true;
         gameThread.interrupt();
     }
     

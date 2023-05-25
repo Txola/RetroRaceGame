@@ -93,27 +93,30 @@ public class Player extends Vehicle{
             colided = false;
         
         Segment playerSegment = circuit.getCurrentSegment(this.getPosition().z % getCircuit().getRoadLength());
-        for (Entity sprite : sprites) {
-            if (sprite != this) {
-                Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z);
-                if (vehicleSegment == playerSegment) {
+        synchronized(sprites) {
+            for (Entity sprite : sprites) {
+                if (sprite != this) {
+                    Segment vehicleSegment = circuit.getCurrentSegment(sprite.getPosition().z);
+                    if (vehicleSegment == playerSegment) {
 
-                    if ((!(sprite instanceof Vehicle) || getSpeed() >=
-                            ((Vehicle) sprite).getSpeed()) && Utils.overlap(getPointX(),
-                                    getImageWidth()* getImage().getHitBox(),
-                                    sprite.getPointX(),
-                                    sprite.getImageWidth() * sprite.getImage().getHitBox())) {
+                        if ((!(sprite instanceof Vehicle) || getSpeed() >=
+                                ((Vehicle) sprite).getSpeed()) && Utils.overlap(getPointX(),
+                                getImageWidth()* getImage().getHitBox(),
+                                sprite.getPointX(),
+                                sprite.getImageWidth() * sprite.getImage().getHitBox())) {
 
-                        if (!(sprite instanceof Vehicle)) {
-                            this.colided = true;
-                            this.setSpeed(0);
+                            if (!(sprite instanceof Vehicle)) {
+                                this.colided = true;
+                                this.setSpeed(0);
+                            }
+                            else {
+                                this.setSpeed(((Vehicle) sprite).getSpeed() / 2);
+                                if (speed == ((Vehicle) sprite).getSpeed())
+                                    this.colided = true;
+                            }
+
+                            getPosition().z -= speed * dt;
                         }
-                        else {
-                            this.setSpeed(((Vehicle) sprite).getSpeed() / 2);
-                            this.colided = true;
-                        }
-
-                        getPosition().z -= speed * dt;
                     }
                 }
             }
