@@ -45,6 +45,7 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        fps = new javax.swing.JLabel();
 
         jLabel2.setText("Lap Time:");
 
@@ -124,6 +125,10 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
 
         jLabel5.setText("Fastest Lap");
 
+        fps.setFont(new java.awt.Font("URW Bookman L", 1, 14)); // NOI18N
+        fps.setForeground(new java.awt.Color(30, 30, 30));
+        fps.setText("60 FPS");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -144,11 +149,13 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(217, 217, 217)
-                                .addComponent(jLabel1))
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 277, Short.MAX_VALUE)
+                                .addComponent(fps)
+                                .addGap(152, 152, 152))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(196, 196, 196)
-                                .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 448, Short.MAX_VALUE)))
+                                .addComponent(lapTimer, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -169,8 +176,10 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(pauseButton)
-                                .addGap(56, 56, 56))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(pauseButton)
+                                    .addComponent(fps))
+                                .addGap(57, 57, 57))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -199,6 +208,7 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
     public void update() {
         updateCounter(lapTimer, gamePanel.getLapSeconds());
         updateVelocimeter();
+        fps.setText(gamePanel.getFPS() + " FPS");
     }
     
     private void updateVelocimeter() {
@@ -228,6 +238,7 @@ public class SoloInfoPanel extends javax.swing.JPanel implements InfoPanel{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField fastLapTime;
+    private javax.swing.JLabel fps;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
