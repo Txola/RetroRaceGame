@@ -31,8 +31,9 @@ public class Image {
     
     private final void loadImage() {
         try {
-            this.bufferedImage = ImageIO.read(new File(path));
+            this.bufferedImage = ImageIO.read( getClass().getResourceAsStream("/resources/" + path));
         } catch (IOException ex) {
+            System.out.println(path);
             Logger.getLogger(Vehicle.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

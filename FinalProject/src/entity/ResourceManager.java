@@ -19,16 +19,16 @@ public class ResourceManager {
     
     public ResourceManager() {
         images = new ArrayList<>();
-        images.add(new Image("src/resources/car2.png", (float) 0.45, 1));//player
-        images.add(new Image("src/resources/mercedes.png", 1, 1));
-        images.add(new Image("src/resources/subaruGris.png", (float) 2.3, 1));
-        images.add(new Image("src/resources/azul.png", (float) 0.65, 1));
-        images.add(new Image("src/resources/audi.png", (float) 0.55, 1));
-        images.add(new Image("src/resources/kia.png", (float) 0.7, 1));
-        images.add(new Image("src/resources/escarabajo.png", (float) 1.25, 1));
-        images.add(new Image("src/resources/bmwm5.png", (float) 0.9, 1));
-        images.add(new Image("src/resources/van.png", (float) 2.8, 1));
-        images.add(new Image("src/resources/camioneta.png", (float) 0.6, 1));
+        images.add(new Image("car2.png", (float) 0.45, 1));//player
+        images.add(new Image("mercedes.png", 1, 1));
+        images.add(new Image("subaruGris.png", (float) 2.3, 1));
+        images.add(new Image("azul.png", (float) 0.65, 1));
+        images.add(new Image("audi.png", (float) 0.55, 1));
+        images.add(new Image("kia.png", (float) 0.7, 1));
+        images.add(new Image("escarabajo.png", (float) 1.25, 1));
+        images.add(new Image("bmwm5.png", (float) 0.9, 1));
+        images.add(new Image("van.png", (float) 2.8, 1));
+        images.add(new Image("camioneta.png", (float) 0.6, 1));
         
         
         
@@ -36,10 +36,10 @@ public class ResourceManager {
         
         
         
-        images.add(new Image("src/resources/Tree.png", 10, (float) 0.1));
+        images.add(new Image("Tree.png", 10, (float) 0.1));
         
         
-        images.add(new Image("src/resources/finishFlag.png", (float) 1.7, 0));
+        images.add(new Image("finishFlag.png", (float) 1.7, 0));
     }
     
     public int getIndexOf(Image image) {

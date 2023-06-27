@@ -152,8 +152,8 @@ public class GamePanel extends JPanel implements Runnable {
         setFocusable(true);
         requestFocus();
         circuit = new Circuit(roadWidth, RUMBLESTRIP_WIDTH, SEGMENT_LENGTH, NUMBER_OF_SEGMENTS, 450);
-        backgroundCity = new Background("src/resources/city_2.png", 100);
-        backgroundSky = new Background("src/resources/clouds.png", 0);
+        backgroundCity = new Background("city_2.png", 100);
+        backgroundSky = new Background("clouds.png", 0);
         lastSegment = circuit.getCurrentSegment(0);
         sprites = new ArrayList<>();
         vehicles = new ArrayList<>();

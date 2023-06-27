@@ -30,7 +30,7 @@ public class Background {
     
     private final void loadImage(String path) {
         try {
-            this.image = ImageIO.read(new File(path));
+            this.image = ImageIO.read( getClass().getResourceAsStream("/resources/" + path));
         } catch (IOException ex) {
             Logger.getLogger(Vehicle.class.getName()).log(Level.SEVERE, null, ex);
         }

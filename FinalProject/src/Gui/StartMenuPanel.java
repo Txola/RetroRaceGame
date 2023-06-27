@@ -31,7 +31,7 @@ public class StartMenuPanel extends javax.swing.JPanel {
     public StartMenuPanel(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
         try {
-            this.image = ImageIO.read(new File("src/resources/cover.png"));
+            this.image = ImageIO.read( getClass().getResourceAsStream("/resources/cover.png"));
         } catch (IOException ex) {
             Logger.getLogger(StartMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
