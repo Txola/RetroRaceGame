@@ -10,3 +10,6 @@ A retro-style race game written from scratch in Java, without any external libra
 The game can be tried using [RetroRaceGame.jar](RetroRaceGame.jar) file. Make sure that the downloaded jar file has execution permission.
 
 Requires at least JDK 8.
+
+## Multiplayer mode
+In the multiplayer mode, one player assumes the role of the game host, while another player establishes a connection by specifying the host's IP address. In the event that no IP address is specified, the client automatically connects to the localhost, enabling convenient testing of the multiplayer functionality.
